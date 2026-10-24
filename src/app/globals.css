@@ -1,0 +1,800 @@
+@import "tailwindcss";
+
+/* 
+ * Enable class-based dark mode in Tailwind CSS v4.
+ * This maps Tailwind's dark: variant classes to the .dark class set by next-themes.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-dark: #0b3524;
+  --color-brand-forest: #255f3d;
+  --color-brand-leaf: #659b41;
+  --color-brand-gold: #efbe2b; /* Richer academic gold */
+  --font-sans: var(--font-montserrat), sans-serif;
+  --font-display: var(--font-montserrat), sans-serif;
+}
+
+html, body, input, button, select, textarea, span, p, h1, h2, h3, h4, h5, h6, a, div {
+  font-family: var(--font-montserrat), sans-serif !important;
+}
+
+/*
+ * ROUNDED UI
+ * The interface uses rounded corners. Tailwind `rounded-*` utilities and the
+ * custom component radii below apply normally (no global override).
+ */
+
+:root {
+  /* Warm academic paper/cream background */
+  --background: #FAF8F5;
+  --foreground: #221a18; /* Deep ink forest */
+  --border-color: rgba(37, 95, 61, 0.15);
+}
+
+.dark {
+  /* Deep library mahogany-black */
+  --background: #050e0a;
+  --foreground: #ece6df; /* Soft parchment white */
+  --border-color: rgba(37, 95, 61, 0.2);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Headings use the rounded display face for a friendly, playful feel */
+h1, h2, h3, h4, h5, h6, .academic-serif, .font-display {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Paper-like surface for the info / article / developer panels: warm cream. */
+.paper-bg {
+  background-color: #f7f3ea;
+}
+
+/* Hidden scrollbar — scroll still works, no visible slider */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Custom scrollbar utility for codes and payloads */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #255f3d; /* Forest green scrollbar thumb */
+}
+
+/* ========================================
+   ACADEMIC / VINTAGE BACKGROUND
+   ======================================== */
+.academic-vignette {
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(239, 190, 43, 0.03) 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, rgba(37, 95, 61, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(101, 155, 65, 0.02) 0%, transparent 50%);
+}
+
+.dark .academic-vignette {
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(37, 95, 61, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, rgba(37, 95, 61, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(101, 155, 65, 0.03) 0%, transparent 50%);
+}
+
+/* Architectural/archival grid pattern (disabled) */
+.archival-grid {
+  display: none;
+}
+
+/* ========================================
+   SHIELD EFFECT
+   ======================================= */
+
+/* Shield/crest ornament border */
+.crest-frame {
+  position: relative;
+  padding: 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(239, 190, 43, 0.3);
+}
+
+.crest-frame::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 9999px;
+  border: 1px dashed rgba(37, 95, 61, 0.2);
+}
+
+/* ========================================
+   ENTRANCE ANIMATIONS (HERO)
+   ======================================== */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+.animate-fade-in-up-delay-1 {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  opacity: 0;
+}
+.animate-fade-in-up-delay-2 {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  opacity: 0;
+}
+.animate-fade-in-up-delay-3 {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+  opacity: 0;
+}
+.animate-fade-in-delay-4 {
+  animation: fade-in 1.2s ease-out 0.8s forwards;
+  opacity: 0;
+}
+
+/* ========================================
+   SCROLL-TRIGGERED SECTION ANIMATIONS
+   ======================================== */
+@keyframes slide-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: none;
+}
+
+.scroll-animate.visible {
+  animation: slide-up-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered card delays */
+.scroll-animate.stagger-1.visible { animation-delay: 0ms; }
+.scroll-animate.stagger-2.visible { animation-delay: 60ms; }
+.scroll-animate.stagger-3.visible { animation-delay: 120ms; }
+.scroll-animate.stagger-4.visible { animation-delay: 180ms; }
+.scroll-animate.stagger-5.visible { animation-delay: 240ms; }
+.scroll-animate.stagger-6.visible { animation-delay: 300ms; }
+
+/* ========================================
+   ACADEMIC / EDITORIAL CARDS
+   ======================================== */
+.academic-card {
+  background: #FCFAF7;
+  border: 1px solid rgba(37, 95, 61, 0.15);
+  box-shadow: 0 4px 20px rgba(37, 95, 61, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.academic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #255f3d; /* Forest top edge border */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.academic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(37, 95, 61, 0.06), 0 2px 4px rgba(37, 95, 61, 0.02);
+  border-color: rgba(37, 95, 61, 0.3);
+}
+
+.academic-card:hover::before {
+  opacity: 1;
+}
+
+.dark .academic-card {
+  background: #101612;
+  border: 1px solid rgba(101, 155, 65, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dark .academic-card::before {
+  background: #659b41;
+}
+
+.dark .academic-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(101, 155, 65, 0.3);
+}
+
+/* ========================================
+   ACADEMIC BUTTONS
+   ======================================== */
+.btn-academic-primary {
+  position: relative;
+  background-color: #255f3d;
+  color: #FAF8F5;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+  border: 1px solid #0b3524;
+}
+
+.btn-academic-primary:hover {
+  background-color: #1e4c30;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 95, 61, 0.15);
+}
+
+.dark .btn-academic-primary {
+  background-color: #efbe2b;
+  color: #0e0a09;
+  border-color: #c1971b;
+}
+
+.dark .btn-academic-primary:hover {
+  background-color: #d3a41e;
+  box-shadow: 0 4px 12px rgba(239, 190, 43, 0.2);
+}
+
+.btn-academic-secondary {
+  border: 1px solid rgba(37, 95, 61, 0.3);
+  background-color: transparent;
+  color: #255f3d;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+}
+
+.btn-academic-secondary:hover {
+  background-color: rgba(37, 95, 61, 0.05);
+  border-color: #255f3d;
+  transform: translateY(-1px);
+}
+
+.dark .btn-academic-secondary {
+  border-color: rgba(229, 234, 223, 0.3);
+  color: #ece6df;
+}
+
+.dark .btn-academic-secondary:hover {
+  background-color: rgba(229, 234, 223, 0.05);
+  border-color: #ece6df;
+}
+
+/* ========================================
+   REGISTRAR OFFICIAL SLIP CARD
+   ======================================== */
+.registrar-slip {
+  background: #FCFBF9;
+  border: 1px solid #D5CEBF;
+  box-shadow: 0 4px 24px rgba(50, 40, 20, 0.05);
+  position: relative;
+}
+
+.registrar-slip::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed #D5CEBF;
+  pointer-events: none;
+}
+
+.dark .registrar-slip {
+  background: #171412;
+  border-color: #423b38;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.dark .registrar-slip::after {
+  border-color: #423b38;
+}
+
+.registrar-stamp {
+  border: 2px double #efbe2b;
+  color: #efbe2b;
+  font-family: var(--font-sans), sans-serif;
+  transform: rotate(-8deg);
+  opacity: 0.85;
+}
+
+.dark .registrar-stamp {
+  border-color: #659b41;
+  color: #659b41;
+}
+
+/* ========================================
+   HEADER STICKY BLUR
+   ======================================== */
+.header-academic {
+  background-color: rgba(250, 248, 245, 0.85);
+  border-bottom: 1px solid rgba(37, 95, 61, 0.1);
+  transition: all 0.25s ease;
+}
+
+.header-academic.scrolled {
+  border-bottom-color: rgba(37, 95, 61, 0.18);
+  box-shadow: 0 4px 20px rgba(37, 95, 61, 0.02);
+  background-color: rgba(250, 248, 245, 0.95);
+}
+
+.dark .header-academic {
+  background-color: rgba(10, 14, 12, 0.85);
+  border-bottom: 1px solid rgba(101, 155, 65, 0.1);
+}
+
+.dark .header-academic.scrolled {
+  border-bottom-color: rgba(101, 155, 65, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(10, 14, 12, 0.95);
+}
+
+/* ========================================
+   ACADEMIC PILL BADGES
+   ======================================== */
+.academic-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(37, 95, 61, 0.05);
+  border: 1px solid rgba(37, 95, 61, 0.15);
+  color: #255f3d;
+  transition: all 0.2s ease;
+}
+
+.academic-pill:hover {
+  background: rgba(37, 95, 61, 0.1);
+  border-color: rgba(239, 190, 43, 0.4);
+}
+
+.dark .academic-pill {
+  background: rgba(101, 155, 65, 0.05);
+  border: 1px solid rgba(101, 155, 65, 0.15);
+  color: #94cb74;
+}
+
+.dark .academic-pill:hover {
+  background: rgba(101, 155, 65, 0.1);
+  border-color: rgba(239, 190, 43, 0.4);
+}
+
+/* ========================================
+   FLOURISH / DECORATIVE ORNAMENTS
+   ======================================== */
+.academic-flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #efbe2b;
+  opacity: 0.6;
+}
+
+.academic-flourish::before,
+.academic-flourish::after {
+  content: '';
+  height: 1px;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, #efbe2b, transparent);
+}
+
+.dark .academic-flourish {
+  color: #659b41;
+}
+
+.dark .academic-flourish::before,
+.dark .academic-flourish::after {
+  background: linear-gradient(90deg, transparent, #659b41, transparent);
+}
+
+/* Classic Drop Cap */
+.academic-dropcap::first-letter {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 3.2rem;
+  float: left;
+  line-height: 0.8;
+  margin-top: 4px;
+  margin-right: 8px;
+  color: #255f3d;
+  font-weight: bold;
+}
+
+.dark .academic-dropcap::first-letter {
+  color: #efbe2b;
+}
+
+/* Divider lines */
+.academic-divider {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, transparent, rgba(37, 95, 61, 0.15), transparent);
+}
+
+.dark .academic-divider {
+  background-image: linear-gradient(to right, transparent, rgba(101, 155, 65, 0.15), transparent);
+}
+
+/* ========================================
+   LOGO CLICK POP ANIMATION
+   ======================================== */
+@keyframes pop-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop-once {
+  animation: pop-once 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ========================================
+   LOGO ENTRANCE SPIN-IN ANIMATION
+   ======================================== */
+@keyframes spin-in {
+  0% { transform: rotate(-360deg) scale(0.5); opacity: 0; }
+  100% { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+
+.animate-spin-in {
+  animation: spin-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ========================================
+   ACADEMIC FORM DESIGN SYSTEM
+   ======================================== */
+.academic-card {
+  position: relative;
+  background-color: #FCFAF7;
+  border: 1px solid rgba(37, 95, 61, 0.15);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px -2px rgba(37, 95, 61, 0.05);
+}
+
+.dark .academic-card {
+  background-color: #101612;
+  border-color: rgba(101, 155, 65, 0.15);
+  box-shadow: 0 4px 30px -2px rgba(0, 0, 0, 0.5);
+}
+
+.academic-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #35453c;
+  margin-bottom: 0.375rem;
+}
+
+.dark .academic-label {
+  color: #abb8b0;
+}
+
+.academic-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background-color: #FAF8F5;
+  border: 1px solid rgba(37, 95, 61, 0.25);
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  color: #15221b;
+  transition: all 0.15s ease-in-out;
+}
+
+@media (min-width: 640px) {
+  .academic-input {
+    font-size: 0.875rem;
+  }
+}
+
+.academic-input::placeholder {
+  color: #87948d;
+}
+
+.academic-input:focus {
+  outline: none;
+  border-color: #255f3d;
+  box-shadow: 0 0 0 1px rgba(37, 95, 61, 0.5);
+}
+
+/* Dark Mode Form styling */
+.dark .academic-input {
+  background-color: #131b17;
+  border-color: rgba(101, 155, 65, 0.25);
+  color: #ece6df;
+}
+
+.dark .academic-input::placeholder {
+  color: #67736d;
+}
+
+.dark .academic-input:focus {
+  border-color: #659b41;
+  box-shadow: 0 0 0 1px rgba(101, 155, 65, 0.5);
+}
+
+.academic-section-header {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #255f3d;
+  border-left: 3px solid #efbe2b;
+  padding-left: 0.5rem;
+}
+
+.dark .academic-section-header {
+  color: #94cb74;
+  border-left-color: #efbe2b;
+}
+
+/* ========================================
+   PLAYFUL LAYER (light touch)
+   A gentle "friendly panel" pass: a soft offset shadow and a small springy
+   lift on hover. Borders and colors are left as-is so it stays subtle and
+   on-brand — just a touch more fun. Applies to the shared components AND to
+   the dashboard cards (scoped via .dorm-panels) so the whole app matches.
+   ======================================== */
+:root {
+  /* soft, semi-transparent offset — reads as friendly, not loud comic */
+  --comic-shadow: 3px 3px 0 rgba(37, 95, 61, 0.16);
+  --comic-shadow-hover: 4px 4px 0 rgba(37, 95, 61, 0.22);
+  --bounce: cubic-bezier(0.34, 1.25, 0.64, 1); /* gentle overshoot */
+}
+
+.dark {
+  --comic-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+  --comic-shadow-hover: 4px 4px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* --- Cards: soft offset shadow, small lift on hover --- */
+.academic-card,
+.dorm-panels .rounded-xl.border-neutral-200,
+.dorm-panels .rounded-2xl.border-neutral-200 {
+  box-shadow: var(--comic-shadow);
+  transition: transform 0.18s var(--bounce), box-shadow 0.18s var(--bounce),
+    border-color 0.18s ease;
+}
+
+.academic-card:hover,
+.dorm-panels .rounded-xl.border-neutral-200:hover,
+.dorm-panels .rounded-2xl.border-neutral-200:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--comic-shadow-hover);
+}
+
+/* --- Buttons: soft shadow, tiny hover lift, gentle press-down --- */
+.btn-academic-primary,
+.btn-academic-secondary {
+  border-radius: 0.75rem;
+  box-shadow: var(--comic-shadow);
+  transition: transform 0.14s var(--bounce), box-shadow 0.14s var(--bounce),
+    background-color 0.2s ease;
+}
+
+.btn-academic-primary:hover,
+.btn-academic-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--comic-shadow-hover);
+}
+
+.btn-academic-primary:active,
+.btn-academic-secondary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* --- Pills / badges: friendly rounded chips --- */
+.academic-pill {
+  border-radius: 9999px;
+  box-shadow: var(--comic-shadow);
+  transition: transform 0.18s var(--bounce), box-shadow 0.18s var(--bounce),
+    background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.academic-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--comic-shadow-hover);
+}
+
+/* Respect users who prefer less motion — drop the springy transforms */
+@media (prefers-reduced-motion: reduce) {
+  .academic-card,
+  .academic-card:hover,
+  .dorm-panels .rounded-xl.border-neutral-200,
+  .dorm-panels .rounded-xl.border-neutral-200:hover,
+  .dorm-panels .rounded-2xl.border-neutral-200,
+  .dorm-panels .rounded-2xl.border-neutral-200:hover,
+  .btn-academic-primary,
+  .btn-academic-secondary,
+  .btn-academic-primary:hover,
+  .btn-academic-secondary:hover,
+  .btn-academic-primary:active,
+  .btn-academic-secondary:active,
+  .academic-pill,
+  .academic-pill:hover,
+  .portal-btn,
+  .portal-btn:hover,
+  .portal-btn:active,
+  .portal-persona-btn,
+  .portal-persona-btn:hover,
+  .portal-persona-btn:active {
+    transform: none;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+}
+/* Custom Theme Toggle Switch */
+.custom-theme-toggle {
+  width: 50px;
+  height: 26px;
+  background-color: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 9999px !important;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dark .custom-theme-toggle {
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.custom-theme-toggle-knob {
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 50% !important;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.custom-theme-toggle-active {
+  background-color: #efbe2b !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .custom-theme-toggle-active {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.custom-theme-toggle-active .custom-theme-toggle-knob {
+  transform: translateX(24px);
+}
+
+/* Brand Deep Green Utilities (#0b3524) */
+.bg-brand-deep-green {
+  background-color: #0b3524 !important;
+}
+
+.text-brand-deep-green {
+  color: #0b3524 !important;
+}
+
+.border-brand-deep-green {
+  border-color: #0b3524 !important;
+}
+
+/* Brand Deepest Green Utilities (#01291c) */
+.bg-brand-deepest-green {
+  background-color: #01291c !important;
+}
+
+.text-brand-deepest-green {
+  color: #01291c !important;
+}
+
+.border-brand-deepest-green {
+  border-color: #01291c !important;
+}
+
+/* Branded Portal Layout Overrides — rounded corners */
+/* Card + buttons pick up the same playful comic offset shadow + springy
+   hover/press as the rest of the app (see PLAYFUL LAYER above). */
+.portal-card {
+  border-radius: 16px !important;
+  box-shadow: var(--comic-shadow) !important;
+}
+
+.portal-input {
+  border-radius: 8px !important;
+  padding-left: 2.75rem !important;
+  padding-right: 2.75rem !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.portal-input:focus {
+  border-color: #669b41 !important;
+  box-shadow: 0 0 0 3px rgba(102, 155, 65, 0.15) !important;
+}
+
+.portal-btn,
+.portal-persona-btn {
+  border-radius: 8px !important;
+  box-shadow: var(--comic-shadow) !important;
+  transition: transform 0.14s var(--bounce), box-shadow 0.14s var(--bounce),
+    background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.portal-btn:hover,
+.portal-persona-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--comic-shadow-hover) !important;
+}
+
+.portal-btn:active,
+.portal-persona-btn:active {
+  transform: translateY(1px);
+  box-shadow: none !important;
+}
+
+.portal-badge {
+  border-radius: 4px !important;
+}
+
+.portal-avatar {
+  border-radius: 50% !important;
+}
+
+/*
+ * Diagonal basketweave backdrop for the login section.
+ * A seamlessly tiling 60x60 SVG weave is painted on an oversized, rotated
+ * ::before so it reads as a 45° weave. The section clips it (overflow) so it
+ * never bleeds onto the branding panel; the login card (z-20) sits above it.
+ */
+.weave-bg::before {
+  content: "";
+  position: absolute;
+  inset: -75%;
+  z-index: 0;
+  pointer-events: none;
+  transform: rotate(45deg);
+  opacity: 0.075;
+  background-repeat: repeat;
+  background-size: 96px 96px;
+  /* Simple stroke-only basketweave in black grout lines. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23000000' stroke-width='2' stroke-opacity='1'%3E%3Crect x='0' y='0' width='30' height='15'/%3E%3Crect x='0' y='15' width='30' height='15'/%3E%3Crect x='30' y='0' width='15' height='30'/%3E%3Crect x='45' y='0' width='15' height='30'/%3E%3Crect x='0' y='30' width='15' height='30'/%3E%3Crect x='15' y='30' width='15' height='30'/%3E%3Crect x='30' y='30' width='30' height='15'/%3E%3Crect x='30' y='45' width='30' height='15'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+
