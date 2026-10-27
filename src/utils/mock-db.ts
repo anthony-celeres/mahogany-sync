@@ -67,12 +67,76 @@ export interface CleaningSchedule {
   kitchenOnly: boolean
 }
 
+export type CleaningType = 'daily' | 'general'
+export type CleaningRemark = 'check' | 'excuse' | 'absent' | 'paid' | 'na'
+
+export type DormLevel = 'all' | 'ground' | 'first' | 'second' | 'third'
+
+export interface LevelConfig {
+  id: DormLevel
+  name: string
+  subtitle: string
+  rooms: string[]
+}
+
+export const MMH_LEVELS: LevelConfig[] = [
+  { 
+    id: 'all', 
+    name: 'All Levels', 
+    subtitle: 'Ground, 1st, 2nd, & 3rd Levels', 
+    rooms: [] 
+  },
+  { 
+    id: 'ground', 
+    name: 'Ground Level', 
+    subtitle: 'Room 3 (10), Room 4 (10), Room 5 (12)', 
+    rooms: ['003-A', '003-B', '004-A', '004-B', '005-A', '005-B', '3', '4', '5'] 
+  },
+  { 
+    id: 'first', 
+    name: 'First Level', 
+    subtitle: 'Rooms 101–110 (4 occupants each)', 
+    rooms: ['101', '102', '103', '104', '105', '106', '107', '108', '109', '110'] 
+  },
+  { 
+    id: 'second', 
+    name: 'Second Level', 
+    subtitle: 'Rooms 211–213 & 216–220 (4 occupants each)', 
+    rooms: ['211', '212', '213', '216', '217', '218', '219', '220'] 
+  },
+  { 
+    id: 'third', 
+    name: 'Third Level', 
+    subtitle: 'Rooms 321–330 (4 occupants each)', 
+    rooms: ['321', '322', '323', '324', '325', '326', '327', '328', '329', '330'] 
+  },
+]
+
+export function getRoomLevel(roomNumber?: string): 'ground' | 'first' | 'second' | 'third' | 'other' {
+  if (!roomNumber) return 'other'
+  const clean = roomNumber.trim().toUpperCase()
+  // Ground: 3, 4, 5 or 003, 004, 005 (with optional -A, -B suffix)
+  if (/^(00[3-5]|[3-5])(-[A-Z0-9]+)?$/.test(clean)) return 'ground'
+  const m = clean.match(/^(\d{3})/)
+  if (m) {
+    const n = parseInt(m[1], 10)
+    if (n >= 101 && n <= 110) return 'first'
+    if ((n >= 211 && n <= 213) || (n >= 216 && n <= 220)) return 'second'
+    if (n >= 321 && n <= 330) return 'third'
+  }
+  return 'other'
+}
+
 export interface CleaningAttendance {
   id: string
   date: string
   userId: string
-  status: 'present' | 'absent' | 'excused'
-  kitchenOnly: boolean
+  cleaningType?: CleaningType // 'daily' | 'general'
+  remark?: CleaningRemark // 'check' (/) | 'excuse' (E) | 'absent' (A) | 'paid' (P) | 'na' (NA)
+  status?: 'present' | 'absent' | 'excused' // backward compatibility
+  fineAmount?: number // 10 for daily, 50 for general
+  finePaymentId?: string // links to payment record
+  kitchenOnly?: boolean
   markedBy: string
 }
 
@@ -300,6 +364,79 @@ export const PRESET_USERS: MockUser[] = [
     status: 'active',
     addedAt: '2026-06-01',
   },
+
+  // ================= GROUND LEVEL OCCUPANTS =================
+  // Room 4 (004-A: 5 occupants, 004-B: 5 occupants = 10 occupants) - FROM OFFICIAL MMH SHEET
+  { id: 'u-g-11', email: 'bajao.m@vsu.edu.ph', fullName: 'Bajao, Marc Angelo L.', username: 'bajao.m', role: 'user', specialRoles: [], studentId: '24-1-01111', roomNumber: '004-A', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-12', email: 'cabero.j@vsu.edu.ph', fullName: 'Cabero, Jerald Brian T.', username: 'cabero.j', role: 'user', specialRoles: [], studentId: '25-1-01112', roomNumber: '004-A', degreeProgram: 'AB-Philo-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-13', email: 'viter.g@vsu.edu.ph', fullName: 'Viter, Gezer Briel', username: 'viter.g', role: 'user', specialRoles: [], studentId: '24-1-01113', roomNumber: '004-A', degreeProgram: 'BSEd Science-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-14', email: 'miasco.e@vsu.edu.ph', fullName: 'Miasco, Ezra', username: 'miasco.e', role: 'user', specialRoles: [], studentId: '23-1-01114', roomNumber: '004-A', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-15', email: 'lagaret.n@vsu.edu.ph', fullName: 'Lagaret, Niel Wyne', username: 'lagaret.n', role: 'user', specialRoles: [], studentId: '22-1-01115', roomNumber: '004-A', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+
+  { id: 'u-g-16', email: 'gloria.d@vsu.edu.ph', fullName: 'Gloria, Derick O.', username: 'gloria.d', role: 'user', specialRoles: [], studentId: '22-1-01116', roomNumber: '004-B', degreeProgram: 'BSA Horti-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-17', email: 'maligon.e@vsu.edu.ph', fullName: 'Malig-on, Edward Emmanuel G.', username: 'maligon.e', role: 'user', specialRoles: [], studentId: '23-1-01117', roomNumber: '004-B', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-18', email: 'martinez.j@vsu.edu.ph', fullName: 'Martinez, John Kenneth O.', username: 'martinez.j', role: 'user', specialRoles: [], studentId: '22-1-01118', roomNumber: '004-B', degreeProgram: 'BSA AnSci-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-19', email: 'conejos.h@vsu.edu.ph', fullName: 'Conejos, Harley', username: 'conejos.h', role: 'user', specialRoles: [], studentId: '23-1-01119', roomNumber: '004-B', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-20', email: 'timkang.j@vsu.edu.ph', fullName: 'Timkang, Jayson', username: 'timkang.j', role: 'user', specialRoles: [], studentId: '24-1-01120', roomNumber: '004-B', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+
+  // Room 3 (003-A: 5 occupants, 003-B: 5 occupants = 10 occupants)
+  { id: 'u-g-01', email: 'santos.r@vsu.edu.ph', fullName: 'Santos, Rafael D.', username: 'santos.r', role: 'user', specialRoles: [], studentId: '24-1-01101', roomNumber: '003-A', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-02', email: 'olarte.k@vsu.edu.ph', fullName: 'Olarte, Kevin P.', username: 'olarte.k', role: 'user', specialRoles: [], studentId: '23-1-01102', roomNumber: '003-A', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-03', email: 'tan.c@vsu.edu.ph', fullName: 'Tan, Christian Mark L.', username: 'tan.c', role: 'user', specialRoles: [], studentId: '24-1-01103', roomNumber: '003-A', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-04', email: 'flores.d@vsu.edu.ph', fullName: 'Flores, Dominic R.', username: 'flores.d', role: 'user', specialRoles: [], studentId: '25-1-01104', roomNumber: '003-A', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-05', email: 'villar.a@vsu.edu.ph', fullName: 'Villar, Angelo S.', username: 'villar.a', role: 'user', specialRoles: [], studentId: '23-1-01105', roomNumber: '003-A', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-06', email: 'alcantara.j@vsu.edu.ph', fullName: 'Alcantara, Jhon Rey M.', username: 'alcantara.j', role: 'user', specialRoles: [], studentId: '25-1-01106', roomNumber: '003-B', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-07', email: 'beltran.c@vsu.edu.ph', fullName: 'Beltran, Carl Joshua V.', username: 'beltran.c', role: 'user', specialRoles: [], studentId: '24-1-01107', roomNumber: '003-B', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-08', email: 'cortez.e@vsu.edu.ph', fullName: 'Cortez, Emmanuel B.', username: 'cortez.e', role: 'user', specialRoles: [], studentId: '23-1-01108', roomNumber: '003-B', degreeProgram: 'BSGE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-09', email: 'dizon.p@vsu.edu.ph', fullName: 'Dizon, Patrick Ian N.', username: 'dizon.p', role: 'user', specialRoles: [], studentId: '24-1-01109', roomNumber: '003-B', degreeProgram: 'BSEd-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-10', email: 'enriquez.m@vsu.edu.ph', fullName: 'Enriquez, Mark Louis T.', username: 'enriquez.m', role: 'user', specialRoles: [], studentId: '25-1-01110', roomNumber: '003-B', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+
+  // Room 5 (005-A: 6 occupants, 005-B: 6 occupants = 12 occupants)
+  { id: 'u-g-21', email: 'gacayan.v@vsu.edu.ph', fullName: 'Gacayan, Vince Neil C.', username: 'gacayan.v', role: 'user', specialRoles: [], studentId: '24-1-01121', roomNumber: '005-A', degreeProgram: 'BSFT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-22', email: 'herrera.r@vsu.edu.ph', fullName: 'Herrera, Ronnel M.', username: 'herrera.r', role: 'user', specialRoles: [], studentId: '24-1-01122', roomNumber: '005-A', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-23', email: 'javier.a@vsu.edu.ph', fullName: 'Javier, Adrian Paul E.', username: 'javier.a', role: 'user', specialRoles: [], studentId: '23-1-01123', roomNumber: '005-A', degreeProgram: 'BSME-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-24', email: 'lim.k@vsu.edu.ph', fullName: 'Lim, Keith Ronald G.', username: 'lim.k', role: 'user', specialRoles: [], studentId: '23-1-01124', roomNumber: '005-A', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-25', email: 'mendoza.s@vsu.edu.ph', fullName: 'Mendoza, Sean Kyle P.', username: 'mendoza.s', role: 'user', specialRoles: [], studentId: '25-1-01125', roomNumber: '005-A', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-26', email: 'navarro.c@vsu.edu.ph', fullName: 'Navarro, Clark Kent D.', username: 'navarro.c', role: 'user', specialRoles: [], studentId: '24-1-01126', roomNumber: '005-A', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-27', email: 'ocampo.j@vsu.edu.ph', fullName: 'Ocampo, Justin Drake F.', username: 'ocampo.j', role: 'user', specialRoles: [], studentId: '25-1-01127', roomNumber: '005-B', degreeProgram: 'BSIT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-28', email: 'pascual.b@vsu.edu.ph', fullName: 'Pascual, Bryan Dale T.', username: 'pascual.b', role: 'user', specialRoles: [], studentId: '24-1-01128', roomNumber: '005-B', degreeProgram: 'BSGE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-29', email: 'quirante.d@vsu.edu.ph', fullName: 'Quirante, Dave Allen S.', username: 'quirante.d', role: 'user', specialRoles: [], studentId: '24-1-01129', roomNumber: '005-B', degreeProgram: 'BSN-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-30', email: 'ramos.j@vsu.edu.ph', fullName: 'Ramos, Joshua Kurt B.', username: 'ramos.j', role: 'user', specialRoles: [], studentId: '23-1-01130', roomNumber: '005-B', degreeProgram: 'BSEd-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-31', email: 'salvador.k@vsu.edu.ph', fullName: 'Salvador, Kyle Matthew L.', username: 'salvador.k', role: 'user', specialRoles: [], studentId: '24-1-01131', roomNumber: '005-B', degreeProgram: 'BSF-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-32', email: 'tolentino.l@vsu.edu.ph', fullName: 'Tolentino, Lance Gabriel M.', username: 'tolentino.l', role: 'user', specialRoles: [], studentId: '25-1-01132', roomNumber: '005-B', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+
+  // ================= SECOND LEVEL OCCUPANTS (Rooms 211-213 & 216-220, 4 each) =================
+  { id: 'u-2-01', email: 'valdez.m@vsu.edu.ph', fullName: 'Valdez, Miguel A.', username: 'valdez.m', role: 'user', specialRoles: [], studentId: '24-1-02211', roomNumber: '211', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-02', email: 'morales.j@vsu.edu.ph', fullName: 'Morales, Joshua T.', username: 'morales.j', role: 'user', specialRoles: [], studentId: '23-1-02212', roomNumber: '211', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-03', email: 'castro.r@vsu.edu.ph', fullName: 'Castro, Renz P.', username: 'castro.r', role: 'user', specialRoles: [], studentId: '25-1-02213', roomNumber: '211', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-04', email: 'santiago.l@vsu.edu.ph', fullName: 'Santiago, Luis K.', username: 'santiago.l', role: 'user', specialRoles: [], studentId: '24-1-02214', roomNumber: '211', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-05', email: 'mercado.k@vsu.edu.ph', fullName: 'Mercado, Kenneth D.', username: 'mercado.k', role: 'user', specialRoles: [], studentId: '23-1-02215', roomNumber: '212', degreeProgram: 'BSA-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-06', email: 'padilla.a@vsu.edu.ph', fullName: 'Padilla, Aaron C.', username: 'padilla.a', role: 'user', specialRoles: [], studentId: '24-1-02216', roomNumber: '212', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-07', email: 'romero.c@vsu.edu.ph', fullName: 'Romero, Carl B.', username: 'romero.c', role: 'user', specialRoles: [], studentId: '25-1-02217', roomNumber: '212', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-08', email: 'aquino.d@vsu.edu.ph', fullName: 'Aquino, Daniel M.', username: 'aquino.d', role: 'user', specialRoles: [], studentId: '23-1-02218', roomNumber: '212', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-09', email: 'delgado.v@vsu.edu.ph', fullName: 'Delgado, Vince E.', username: 'delgado.v', role: 'user', specialRoles: [], studentId: '24-1-02219', roomNumber: '213', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-10', email: 'espiritu.j@vsu.edu.ph', fullName: 'Espiritu, John Paul R.', username: 'espiritu.j', role: 'user', specialRoles: [], studentId: '24-1-02220', roomNumber: '216', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-11', email: 'ferrari.m@vsu.edu.ph', fullName: 'Ferrari, Marco S.', username: 'ferrari.m', role: 'user', specialRoles: [], studentId: '23-1-02221', roomNumber: '217', degreeProgram: 'BSIT-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-12', email: 'gomez.n@vsu.edu.ph', fullName: 'Gomez, Neil T.', username: 'gomez.n', role: 'user', specialRoles: [], studentId: '24-1-02222', roomNumber: '218', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-13', email: 'hidalgo.p@vsu.edu.ph', fullName: 'Hidalgo, Peter L.', username: 'hidalgo.p', role: 'user', specialRoles: [], studentId: '25-1-02223', roomNumber: '219', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-14', email: 'isidro.r@vsu.edu.ph', fullName: 'Isidro, Ronald Q.', username: 'isidro.r', role: 'user', specialRoles: [], studentId: '22-1-02224', roomNumber: '220', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+
+  // ================= THIRD LEVEL OCCUPANTS (Rooms 321-330, 4 each) =================
+  // Room 321 (FROM OFFICIAL MMH SHEET)
+  { id: 'u-3-01', email: 'robin.h@vsu.edu.ph', fullName: 'Robin, Heaven B.', username: 'robin.h', role: 'user', specialRoles: [], studentId: '24-1-03321', roomNumber: '321', degreeProgram: 'BSEd SocStud-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-02', email: 'pelias.j@vsu.edu.ph', fullName: 'Pelias, John Francis K.', username: 'pelias.j', role: 'user', specialRoles: [], studentId: '25-1-03322', roomNumber: '321', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-03', email: 'reoma.h@vsu.edu.ph', fullName: 'Reoma, Hary Kris M.', username: 'reoma.h', role: 'user', specialRoles: [], studentId: '25-1-03323', roomNumber: '321', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-04', email: 'abarquez.s@vsu.edu.ph', fullName: 'Abarquez, Siemon Danielle B.', username: 'abarquez.s', role: 'user', specialRoles: [], studentId: '25-1-03324', roomNumber: '321', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+
+  // Room 322 (FROM OFFICIAL MMH SHEET)
+  { id: 'u-3-05', email: 'malima.k@vsu.edu.ph', fullName: 'Malima, Kenjie P.', username: 'malima.k', role: 'user', specialRoles: [], studentId: '23-1-03325', roomNumber: '322', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-06', email: 'soriano.g@vsu.edu.ph', fullName: 'Soriano, Gerald C.', username: 'soriano.g', role: 'user', specialRoles: [], studentId: '24-1-03326', roomNumber: '322', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-07', email: 'teodoro.m@vsu.edu.ph', fullName: 'Teodoro, Marvin B.', username: 'teodoro.m', role: 'user', specialRoles: [], studentId: '23-1-03327', roomNumber: '322', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-08', email: 'umali.j@vsu.edu.ph', fullName: 'Umali, Jerome D.', username: 'umali.j', role: 'user', specialRoles: [], studentId: '24-1-03328', roomNumber: '322', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+
+  { id: 'u-3-09', email: 'villegas.r@vsu.edu.ph', fullName: 'Villegas, Raymond S.', username: 'villegas.r', role: 'user', specialRoles: [], studentId: '23-1-03329', roomNumber: '323', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-10', email: 'yap.k@vsu.edu.ph', fullName: 'Yap, Kevin L.', username: 'yap.k', role: 'user', specialRoles: [], studentId: '24-1-03330', roomNumber: '324', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-11', email: 'zamora.a@vsu.edu.ph', fullName: 'Zamora, Anthony F.', username: 'zamora.a', role: 'user', specialRoles: [], studentId: '25-1-03331', roomNumber: '325', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
 ]
 
 const INITIAL_PENDING_SIGNUPS: MockUser[] = [
@@ -426,20 +563,51 @@ const INITIAL_PENDING_SIGNUPS: MockUser[] = [
 ]
 
 const INITIAL_CLEANING_SCHEDULE: CleaningSchedule[] = [
-  { id: 'cs-1', dayOfWeek: 'Monday', rooms: ['101', '102'], kitchenOnly: false },
-  { id: 'cs-2', dayOfWeek: 'Tuesday', rooms: ['103', '104'], kitchenOnly: false },
-  { id: 'cs-3', dayOfWeek: 'Wednesday', rooms: ['105', '106'], kitchenOnly: false },
-  { id: 'cs-4', dayOfWeek: 'Thursday', rooms: ['107', '108'], kitchenOnly: false },
-  { id: 'cs-5', dayOfWeek: 'Friday', rooms: ['101', '102', '103', '104', '105', '106', '107', '108'], kitchenOnly: false },
+  { id: 'cs-1', dayOfWeek: 'Monday', rooms: ['003-A', '003-B', '004-A', '004-B', '005-A', '005-B', '101', '102'], kitchenOnly: false },
+  { id: 'cs-2', dayOfWeek: 'Tuesday', rooms: ['103', '104', '105', '106'], kitchenOnly: false },
+  { id: 'cs-3', dayOfWeek: 'Wednesday', rooms: ['107', '108', '109', '110', '211', '212'], kitchenOnly: false },
+  { id: 'cs-4', dayOfWeek: 'Thursday', rooms: ['213', '216', '217', '218', '219', '220'], kitchenOnly: false },
+  { id: 'cs-5', dayOfWeek: 'Friday', rooms: ['321', '322', '323', '324', '325', '326', '327', '328', '329', '330'], kitchenOnly: false },
   { id: 'cs-6', dayOfWeek: 'Monday', rooms: ['101', '104'], kitchenOnly: true },
   { id: 'cs-7', dayOfWeek: 'Wednesday', rooms: ['102', '105'], kitchenOnly: true },
   { id: 'cs-8', dayOfWeek: 'Friday', rooms: ['103'], kitchenOnly: true },
 ]
 
 const INITIAL_CLEANING_ATTENDANCE: CleaningAttendance[] = [
-  { id: 'ca-1', date: '2026-06-29', userId: 'u-2', status: 'present', kitchenOnly: false, markedBy: 'reyes.jp05678' },
-  { id: 'ca-2', date: '2026-06-29', userId: 'u-3', status: 'absent', kitchenOnly: false, markedBy: 'reyes.jp05678' }, // Absence triggers Php 50 fine
-  { id: 'ca-3', date: '2026-06-29', userId: 'u-2', status: 'present', kitchenOnly: true, markedBy: 'celeres.a02249' },
+  // August 2026 Sample Records (Matches Image 1 MMH Official Sheet)
+  { id: 'ca-aug-01', date: '2026-08-10', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-02', date: '2026-08-11', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-03', date: '2026-08-12', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-04', date: '2026-08-13', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-05', date: '2026-08-14', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-06', date: '2026-08-10', userId: 'u-g-12', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-07', date: '2026-08-11', userId: 'u-g-12', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-08', date: '2026-08-12', userId: 'u-g-12', cleaningType: 'daily', remark: 'excuse', status: 'excused', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-09', date: '2026-08-13', userId: 'u-g-12', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-10', date: '2026-08-14', userId: 'u-g-12', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-11', date: '2026-08-10', userId: 'u-g-16', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, finePaymentId: 'py-fine-aug-16', markedBy: 'reyes.jp05678' }, // Gloria, Derick absent -> Php 10 fine
+  { id: 'ca-aug-12', date: '2026-08-11', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-13', date: '2026-08-12', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-14', date: '2026-08-10', userId: 'u-g-15', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-15', date: '2026-08-11', userId: 'u-g-15', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-16', date: '2026-08-13', userId: 'u-g-15', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, finePaymentId: 'py-fine-aug-15', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-17', date: '2026-08-10', userId: 'u-3-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-18', date: '2026-08-11', userId: 'u-3-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-19', date: '2026-08-10', userId: 'u-3-02', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-20', date: '2026-08-11', userId: 'u-3-02', cleaningType: 'daily', remark: 'paid', status: 'absent', fineAmount: 10, markedBy: 'reyes.jp05678' }, // Pelias paid (P)
+
+  // Standard legacy records
+  { id: 'ca-1', date: '2026-06-29', userId: 'u-2', cleaningType: 'daily', remark: 'check', status: 'present', kitchenOnly: false, markedBy: 'reyes.jp05678' },
+  { id: 'ca-2', date: '2026-06-29', userId: 'u-3', cleaningType: 'general', remark: 'absent', status: 'absent', fineAmount: 50, finePaymentId: 'py-3', kitchenOnly: false, markedBy: 'reyes.jp05678' },
+  { id: 'ca-3', date: '2026-06-28', userId: 'u-3', cleaningType: 'daily', remark: 'paid', status: 'absent', fineAmount: 10, kitchenOnly: false, markedBy: 'reyes.jp05678' },
+  { id: 'ca-4', date: '2026-06-29', userId: 'u-7', cleaningType: 'general', remark: 'excuse', status: 'excused', kitchenOnly: false, markedBy: 'reyes.jp05678' },
+  { id: 'ca-5', date: '2026-06-29', userId: 'u-5', cleaningType: 'daily', remark: 'na', kitchenOnly: false, markedBy: 'reyes.jp05678' },
+  { id: 'ca-6', date: '2026-06-29', userId: 'u-2', cleaningType: 'daily', remark: 'check', status: 'present', kitchenOnly: true, markedBy: 'celeres.a02249' },
 ]
 
 const INITIAL_GADGETS: Gadget[] = [
@@ -718,10 +886,19 @@ export function getDb(): MockDatabase {
       }
     })
 
+    const existingAttendance: CleaningAttendance[] = parsed.cleaningAttendance || []
+    INITIAL_CLEANING_ATTENDANCE.forEach(ca => {
+      if (!existingAttendance.some(e => e.id === ca.id)) {
+        existingAttendance.push(ca)
+      }
+    })
+
     const mergedDb: MockDatabase = {
       ...DEFAULT_DB,
       ...parsed,
       users: existingUsers,
+      cleaningAttendance: existingAttendance,
+      cleaningSchedule: parsed.cleaningSchedule && parsed.cleaningSchedule.length > 5 ? parsed.cleaningSchedule : DEFAULT_DB.cleaningSchedule,
       articles: parsed.articles && parsed.articles.length > 0 ? parsed.articles : DEFAULT_DB.articles,
     }
     

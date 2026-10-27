@@ -27,7 +27,11 @@ import {
   Lock,
   Search,
   Check,
+  Filter,
+  X,
+  ChevronLeft,
   ChevronRight,
+  Layers,
   Clock,
   Home,
   Terminal,
@@ -61,6 +65,11 @@ import {
   MockUser,
   CleaningSchedule,
   CleaningAttendance,
+  CleaningType,
+  CleaningRemark,
+  DormLevel,
+  MMH_LEVELS,
+  getRoomLevel,
   Gadget,
   Payment,
   Violation,
@@ -83,7 +92,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [currentUser, setCurrentUser] = useState<any>(initialUser)
   const initialRole = initialUser?.user_metadata?.role
   const [activeTab, setActiveTab] = useState<string>(
-    initialRole === 'admin' ? 'dashboard' : initialRole === 'developer' ? 'devconsole' : 'bulletin'
+    initialRole === 'admin' ? 'dashboard' : initialRole === 'developer' ? 'devconsole' : 'attendance'
   )
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
@@ -97,6 +106,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [selectedPendingDetail, setSelectedPendingDetail] = useState<MockUser | null>(null)
   const [selectedRoomForClean, setSelectedRoomForClean] = useState('')
   const [selectedDayForClean, setSelectedDayForClean] = useState('Monday')
+  const [cleaningTab, setCleaningTab] = useState<CleaningType>('daily')
+  const [cleaningDate, setCleaningDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [cleaningLevelFilter, setCleaningLevelFilter] = useState<DormLevel>('ground')
+  const [cleaningRoomFilter, setCleaningRoomFilter] = useState<string>('all')
+  const [cleaningMonth, setCleaningMonth] = useState<string>('2026-08')
+  const [cleaningViewMode, setCleaningViewMode] = useState<'sheet' | 'roster'>('sheet')
+  const [cleaningActiveTool, setCleaningActiveTool] = useState<CleaningRemark | 'cycle'>('cycle')
+  const [cleaningSearchQuery, setCleaningSearchQuery] = useState<string>('')
+  const [cleaningLogFilter, setCleaningLogFilter] = useState<'all' | 'daily' | 'general'>('all')
+  const [occupantAttFilter, setOccupantAttFilter] = useState<'all' | 'daily' | 'general'>('all')
 
   // Academic Term & Database Storage Management states
   const [ayList, setAyList] = useState<string[]>(['AY 2026-2027', 'AY 2025-2026', 'AY 2024-2025'])
@@ -338,6 +357,9 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     })
   })
 
+  const soonBadge = 'Soon'
+  const soonBadgeColor = 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+
   // Role-driven sidebar navigation.
   const navItems: NavItem[] = isSystemAdmin
     ? [
@@ -347,7 +369,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           icon: LayoutDashboard,
           children: [
             { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-            { id: 'storage', label: 'Storage and History', icon: Database }
+            { id: 'storage', label: 'Storage and History', icon: Database, badge: soonBadge, badgeColor: soonBadgeColor }
           ]
         },
         { 
@@ -360,14 +382,14 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           ]
         },
         { id: 'cleaning', label: 'Cleaning Duties', icon: Sparkles },
-        { id: 'kitchen', label: 'Kitchen Registry', icon: ChefHat },
+        { id: 'kitchen', label: 'Kitchen Registry', icon: ChefHat, badge: soonBadge, badgeColor: soonBadgeColor },
         { id: 'payments', label: 'Financial Ledger', icon: CreditCard },
-        { id: 'gadgets', label: 'Gadget Registry', icon: Laptop },
+        { id: 'gadgets', label: 'Gadget Registry', icon: Laptop, badge: soonBadge, badgeColor: soonBadgeColor },
         { id: 'meetings', label: 'Attendance & Minutes', icon: FileText },
         { id: 'violations', label: 'Violation Record', icon: AlertTriangle },
-        { id: 'elections', label: 'Officer Elections', icon: Vote },
+        { id: 'elections', label: 'Officer Elections', icon: Vote, badge: soonBadge, badgeColor: soonBadgeColor },
         { id: 'evaluations', label: 'Evaluator Panel', icon: Star },
-        { id: 'articles', label: 'Media & Articles', icon: Megaphone },
+        { id: 'articles', label: 'Media & Articles', icon: Megaphone, badge: soonBadge, badgeColor: soonBadgeColor },
         { id: 'settings', label: 'Settings', icon: Settings, accent: 'gold' },
       ]
     : isDeveloper
@@ -378,16 +400,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       ]
     : [
         // Occupant + Officer sidebar
-        { id: 'bulletin', label: 'My Bulletin', icon: Home },
+        { id: 'bulletin', label: 'My Bulletin', icon: Home, badge: soonBadge, badgeColor: soonBadgeColor },
         { id: 'profile', label: 'Occupant Profile', icon: User },
         { id: 'attendance', label: 'Attendance & Schedules', icon: Calendar },
         { id: 'payrecords', label: 'Payment Records', icon: CreditCard },
         { id: 'records', label: 'Minutes & Records', icon: BookOpen },
         { id: 'myviolations', label: 'Violation Records', icon: AlertTriangle },
         { id: 'evaluation', label: 'Evaluation Performance', icon: Star },
-        { id: 'myelections', label: 'Elections', icon: Vote },
+        { id: 'myelections', label: 'Elections', icon: Vote, badge: soonBadge, badgeColor: soonBadgeColor },
         ...(isMedia
-          ? [{ id: 'articles', label: 'Media Tools', icon: Megaphone, accent: 'gold' as const }]
+          ? [{ id: 'articles', label: 'Media Tools', icon: Megaphone, accent: 'gold' as const, badge: soonBadge, badgeColor: soonBadgeColor }]
           : []),
         ...(hasOfficerRole && !isMedia
           ? [{
@@ -694,70 +716,134 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     triggerAlert('success', `Assigned general cleaning schedule for ${selectedDayForClean}`)
   }
 
-  // SA: Record Cleaning Attendance Checklist
-  const handleMarkCleaningAttendance = (userId: string, date: string, status: 'present' | 'absent' | 'excused') => {
-    const existIndex = db.cleaningAttendance.findIndex(c => c.userId === userId && c.date === date && !c.kitchenOnly)
+  // SA: Record Cleaning Attendance Checklist (supports Daily vs General + / , E , A , P , NA)
+  const handleMarkCleaningAttendance = (
+    userId: string,
+    date: string,
+    cleaningTypeOrStatus: CleaningType | 'present' | 'absent' | 'excused',
+    remarkArg?: CleaningRemark
+  ) => {
+    let cleaningType: CleaningType = 'daily'
+    let remark: CleaningRemark = 'check'
+
+    if (cleaningTypeOrStatus === 'daily' || cleaningTypeOrStatus === 'general') {
+      cleaningType = cleaningTypeOrStatus
+      remark = remarkArg || 'check'
+    } else {
+      // Legacy 3-arg call fallback
+      cleaningType = 'daily'
+      remark = cleaningTypeOrStatus === 'present' ? 'check' : cleaningTypeOrStatus === 'excused' ? 'excuse' : 'absent'
+    }
+
+    const existIndex = db.cleaningAttendance.findIndex(
+      c => c.userId === userId && c.date === date && (c.cleaningType === cleaningType || (!c.cleaningType && cleaningType === 'daily')) && !c.kitchenOnly
+    )
     
     let updatedAttendance = [...db.cleaningAttendance]
+    let updatedPayments = [...db.payments]
     const userRec = db.users.find(u => u.id === userId)
-    
+    const fineRate = cleaningType === 'daily' ? 10 : 50
+    const fineDescription = `Fine - ${cleaningType === 'daily' ? 'Daily' : 'General'} Cleaning Absence on ${date}`
+
     if (existIndex > -1) {
-      // update
-      const prevStatus = updatedAttendance[existIndex].status
-      updatedAttendance[existIndex] = {
-        ...updatedAttendance[existIndex],
-        status,
-        markedBy: currentUser.user_metadata.username
+      const prev = updatedAttendance[existIndex]
+      const prevRemark = prev.remark || (prev.status === 'present' ? 'check' : prev.status === 'excused' ? 'excuse' : 'absent')
+      
+      // If was absent/paid and changed to check/excuse/na, remove unpaid fine
+      if ((prevRemark === 'absent' || prevRemark === 'paid') && (remark === 'check' || remark === 'excuse' || remark === 'na')) {
+        updatedPayments = updatedPayments.filter(p => !(p.userId === userId && p.type === 'fine' && (p.id === prev.finePaymentId || p.description.includes(date))))
       }
 
-      // Reconcile Fine: If status changed from absent to present/excused, find and delete the fine
-      if (prevStatus === 'absent' && status !== 'absent') {
-        const dbPayments = db.payments.filter(p => !(p.userId === userId && p.type === 'fine' && p.description.includes(date)))
-        updateDbState({
-          ...db,
-          cleaningAttendance: updatedAttendance,
-          payments: dbPayments
+      // If was absent and now marked paid
+      if (prevRemark === 'absent' && remark === 'paid') {
+        updatedPayments = updatedPayments.map(p => {
+          if (p.userId === userId && p.type === 'fine' && (p.id === prev.finePaymentId || p.description.includes(date))) {
+            return { ...p, status: 'paid' as const, datePaid: new Date().toISOString().split('T')[0] }
+          }
+          return p
         })
-        triggerAlert('success', `Cleaning attendance updated. Fine removed for ${userRec?.fullName}.`)
-        return
+      }
+
+      // If was not absent and now marked absent
+      let fineId = prev.finePaymentId
+      if (prevRemark !== 'absent' && prevRemark !== 'paid' && remark === 'absent') {
+        const newFine: Payment = {
+          id: `py-fine-${Date.now()}`,
+          userId,
+          type: 'fine',
+          description: fineDescription,
+          amount: fineRate,
+          dueDate: new Date(Date.now() + 10*24*60*60*1000).toISOString().split('T')[0],
+          status: 'unpaid'
+        }
+        updatedPayments.push(newFine)
+        fineId = newFine.id
+      }
+
+      // If marked paid directly
+      if (prevRemark !== 'absent' && prevRemark !== 'paid' && remark === 'paid') {
+        const newFine: Payment = {
+          id: `py-fine-${Date.now()}`,
+          userId,
+          type: 'fine',
+          description: fineDescription,
+          amount: fineRate,
+          dueDate: new Date(Date.now() + 10*24*60*60*1000).toISOString().split('T')[0],
+          status: 'paid',
+          datePaid: new Date().toISOString().split('T')[0]
+        }
+        updatedPayments.push(newFine)
+        fineId = newFine.id
+      }
+
+      updatedAttendance[existIndex] = {
+        ...prev,
+        cleaningType,
+        remark,
+        status: remark === 'check' ? 'present' : remark === 'excuse' ? 'excused' : 'absent',
+        fineAmount: (remark === 'absent' || remark === 'paid') ? fineRate : 0,
+        finePaymentId: fineId,
+        markedBy: currentUser.user_metadata.username
       }
     } else {
-      // create new
+      // Create new
+      let fineId: string | undefined = undefined
+      if (remark === 'absent' || remark === 'paid') {
+        const newFine: Payment = {
+          id: `py-fine-${Date.now()}`,
+          userId,
+          type: 'fine',
+          description: fineDescription,
+          amount: fineRate,
+          dueDate: new Date(Date.now() + 10*24*60*60*1000).toISOString().split('T')[0],
+          status: remark === 'paid' ? 'paid' : 'unpaid',
+          datePaid: remark === 'paid' ? new Date().toISOString().split('T')[0] : undefined
+        }
+        updatedPayments.push(newFine)
+        fineId = newFine.id
+      }
+
       const newAtt: CleaningAttendance = {
         id: `ca-${Date.now()}`,
         date,
         userId,
-        status,
+        cleaningType,
+        remark,
+        status: remark === 'check' ? 'present' : remark === 'excuse' ? 'excused' : 'absent',
+        fineAmount: (remark === 'absent' || remark === 'paid') ? fineRate : 0,
+        finePaymentId: fineId,
         kitchenOnly: false,
         markedBy: currentUser.user_metadata.username
       }
       updatedAttendance.push(newAtt)
     }
 
-    // RULE 1: If status is Absent, automatically add Php 50 Fine (respecting effective from add date)
-    // Verify date is after user addedAt
-    let updatedPayments = [...db.payments]
-    if (status === 'absent') {
-      const addedDate = userRec ? new Date(userRec.addedAt) : new Date()
-      const attendanceDate = new Date(date)
-
-      if (attendanceDate >= addedDate) {
-        const finePayment: Payment = {
-          id: `py-fine-${Date.now()}`,
-          userId,
-          type: 'fine',
-          description: `Fine - General Cleaning Absence on ${date}`,
-          amount: 50,
-          dueDate: new Date(Date.now() + 10*24*60*60*1000).toISOString().split('T')[0], // 10 days to pay fine
-          status: 'unpaid'
-        }
-        updatedPayments.push(finePayment)
-        triggerAlert('success', `Marked ${userRec?.fullName} ABSENT. Added Php 50 fine.`)
-      } else {
-        triggerAlert('error', `Cannot fine occupant! Attendance date (${date}) predates occupant added date (${userRec?.addedAt}).`)
-      }
-    } else {
-      triggerAlert('success', `Cleaning attendance saved for ${userRec?.fullName}.`)
+    const labelMap: Record<CleaningRemark, string> = {
+      check: 'Check (/) - Present',
+      excuse: 'Excuse (E)',
+      absent: `Absent (A) - ₱${fineRate} fine billed`,
+      paid: `Paid (P) - ₱${fineRate} fine settled`,
+      na: 'Not Available (NA)'
     }
 
     updateDbState({
@@ -765,6 +851,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       cleaningAttendance: updatedAttendance,
       payments: updatedPayments
     })
+    triggerAlert('success', `${userRec?.fullName}: marked ${labelMap[remark]}`)
   }
 
   // KM: Add Kitchen User (membership time-bound starts today)
@@ -1064,19 +1151,36 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     triggerAlert('success', `Mock receipt uploaded! Payment status is now PENDING verification.`)
   }
 
-  // SA / Treasurer: Confirm Payment
+  // SA / Treasurer: Confirm Payment (automatically reconciles cleaning fine to Paid 'P')
   const handleConfirmPayment = (paymentId: string) => {
+    const payment = db.payments.find(p => p.id === paymentId)
     const updatedPayments = db.payments.map(p => {
       if (p.id === paymentId) {
         return {
           ...p,
-          status: 'paid' as const
+          status: 'paid' as const,
+          datePaid: new Date().toISOString().split('T')[0]
         }
       }
       return p
     })
-    updateDbState({ ...db, payments: updatedPayments })
-    triggerAlert('success', `Payment verified and marked PAID.`)
+
+    // If this was an absence fine, update the corresponding cleaning attendance record remark to 'paid' (P)
+    let updatedAttendance = [...db.cleaningAttendance]
+    if (payment && payment.type === 'fine') {
+      updatedAttendance = updatedAttendance.map(ca => {
+        if (ca.finePaymentId === paymentId || (ca.userId === payment.userId && payment.description.includes(ca.date))) {
+          return {
+            ...ca,
+            remark: 'paid' as CleaningRemark
+          }
+        }
+        return ca
+      })
+    }
+
+    updateDbState({ ...db, payments: updatedPayments, cleaningAttendance: updatedAttendance })
+    triggerAlert('success', `Payment verified and marked PAID. Attendance remark updated to Paid (P).`)
   }
 
   // SA: Record violation
@@ -1535,6 +1639,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   </div>
                 </div>
 
+                {/* Phase 2 Modular Notice */}
+                <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                      Phase 2 · Soon
+                    </span>
+                    <p className="text-xs leading-relaxed">
+                      <strong>Resident Bulletin</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                    </p>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Announcements */}
                   <div className="lg:col-span-2 space-y-3">
@@ -1588,83 +1704,406 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           {/* SECTION: Attendance & Schedules */}
           {activeTab === 'attendance' && (() => {
             const room = mockUserRecord?.roomNumber || ''
-            const myGeneralAtt = db.cleaningAttendance.filter(c => c.userId === currentUser.id && !c.kitchenOnly)
+            const myAllCleaningAtt = db.cleaningAttendance.filter(c => c.userId === currentUser.id && !c.kitchenOnly)
+            const myDailyAtt = myAllCleaningAtt.filter(c => c.cleaningType === 'daily' || !c.cleaningType)
+            const myGeneralAtt = myAllCleaningAtt.filter(c => c.cleaningType === 'general')
             const myKitchenAtt = db.cleaningAttendance.filter(c => c.userId === currentUser.id && c.kitchenOnly)
             const generalSched = db.cleaningSchedule.filter(s => !s.kitchenOnly)
             const kitchenSched = db.cleaningSchedule.filter(s => s.kitchenOnly)
-            const statusChip = (s: string) => s === 'present' ? 'bg-emerald-500/15 text-emerald-500' : s === 'excused' ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500'
+
+            // Fines and clearance
+            const myUnpaidCleaningFines = db.payments.filter(p => p.userId === currentUser.id && p.type === 'fine' && p.status === 'unpaid')
+            const totalUnpaidFines = myUnpaidCleaningFines.reduce((sum, p) => sum + p.amount, 0)
+            const hasUnpaidFines = totalUnpaidFines > 0
+
+            // Daily cleaning breakdown
+            const dailyChecked = myDailyAtt.filter(c => c.remark === 'check' || (!c.remark && c.status === 'present')).length
+            const dailyExcused = myDailyAtt.filter(c => c.remark === 'excuse' || (!c.remark && c.status === 'excused')).length
+            const dailyAbsent = myDailyAtt.filter(c => c.remark === 'absent' || (!c.remark && c.status === 'absent')).length
+            const dailyPaid = myDailyAtt.filter(c => c.remark === 'paid').length
+            const dailyNA = myDailyAtt.filter(c => c.remark === 'na').length
+
+            // General cleaning breakdown
+            const generalChecked = myGeneralAtt.filter(c => c.remark === 'check' || (!c.remark && c.status === 'present')).length
+            const generalExcused = myGeneralAtt.filter(c => c.remark === 'excuse' || (!c.remark && c.status === 'excused')).length
+            const generalAbsent = myGeneralAtt.filter(c => c.remark === 'absent' || (!c.remark && c.status === 'absent')).length
+            const generalPaid = myGeneralAtt.filter(c => c.remark === 'paid').length
+            const generalNA = myGeneralAtt.filter(c => c.remark === 'na').length
+
+            // Filtered personal records
+            const displayedRecords = myAllCleaningAtt
+              .filter(c => {
+                if (occupantAttFilter === 'daily') return c.cleaningType === 'daily' || !c.cleaningType
+                if (occupantAttFilter === 'general') return c.cleaningType === 'general'
+                return true
+              })
+              .sort((a, b) => (a.date < b.date ? 1 : -1))
+
             return (
               <div className="space-y-6 animate-fade-in">
-                <div className="pb-4 border-b border-neutral-200 dark:border-neutral-850">
-                  <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Attendance & Schedules</h2>
-                  <p className="text-xs text-neutral-500">Your cleaning{isKitchenUser ? ', kitchen,' : ''} and event schedules with personal attendance history.</p>
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200 dark:border-neutral-850">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-brand-leaf uppercase tracking-wider mb-1">
+                      <Sparkles className="w-4 h-4" /> Resident Attendance Portal
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                      My Attendance &amp; Semestral Clearance
+                    </h2>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      Personal duty tracking for Daily Cleaning (₱10 fine), General Cleaning (₱50 fine), and Event Attendance required for semestral evaluation.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-neutral-100 dark:bg-neutral-850 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-800 font-mono">
+                      Room {room || 'Unassigned'}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* General cleaning schedule */}
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">General Cleaning Schedule</h3>
-                    <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 space-y-2 text-xs">
-                      {generalSched.map(s => (
-                        <div key={s.id} className={`flex justify-between p-2 rounded-lg ${s.rooms.includes(room) ? 'bg-brand-forest/10 border border-brand-forest/30' : ''}`}>
-                          <span className="font-bold text-neutral-900 dark:text-white">{s.dayOfWeek}</span>
-                          <span className="text-neutral-500">Rooms {s.rooms.join(', ')}{s.rooms.includes(room) ? ' · You' : ''}</span>
-                        </div>
-                      ))}
+                {/* Semestral Clearance Status Banner */}
+                {hasUnpaidFines ? (
+                  <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+                    <div className="flex items-start sm:items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center shrink-0">
+                        <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                      </div>
+                      <div>
+                        <strong className="text-sm font-extrabold block">
+                          Semestral Evaluation Hold Active: ₱{totalUnpaidFines} Outstanding Cleaning Fines
+                        </strong>
+                        <p className="text-xs text-rose-700 dark:text-rose-400 mt-0.5">
+                          You have {myUnpaidCleaningFines.length} unresolved absence fine(s). These must be settled with the Dormitory Treasurer before your Semestral Evaluation Clearance can be approved.
+                        </p>
+                      </div>
                     </div>
-                    <h4 className="text-[11px] font-bold text-neutral-600 dark:text-neutral-400 pt-1">My Cleaning Attendance</h4>
-                    <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 space-y-2 text-xs">
-                      {myGeneralAtt.length === 0 ? <p className="text-neutral-500 italic">No records yet.</p> : myGeneralAtt.map(c => (
-                        <div key={c.id} className="flex justify-between items-center">
-                          <span className="text-neutral-600 dark:text-neutral-400">{c.date}</span>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusChip(c.status)}`}>{c.status}</span>
-                        </div>
-                      ))}
+                    <button
+                      onClick={() => setActiveTab('payrecords')}
+                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer shadow-xs"
+                    >
+                      View &amp; Settle at Treasury
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 flex items-center gap-3 shadow-xs">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                      <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <strong className="text-sm font-extrabold block">
+                        Semestral Clearance Standing: Clean &amp; In Good Standing
+                      </strong>
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+                        You have zero outstanding cleaning attendance fines or disciplinary holds. Your cleaning duty record satisfies all semestral evaluation criteria.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Dual-Tier Breakdown Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Card 1: Daily Cleaning Breakdown */}
+                  <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-4 shadow-xs">
+                    <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-brand-leaf" />
+                        <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white">Daily Cleaning Record</h3>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono">
+                        ₱10 fine per absence
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-5 gap-2 text-center">
+                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">/ Check</span>
+                        <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{dailyChecked}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                        <span className="text-[10px] text-sky-600 dark:text-sky-400 font-bold uppercase block">E Excuse</span>
+                        <span className="text-lg font-extrabold text-sky-600 dark:text-sky-400">{dailyExcused}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <span className="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase block">A Absent</span>
+                        <span className="text-lg font-extrabold text-red-600 dark:text-red-400">{dailyAbsent}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20">
+                        <span className="text-[10px] text-teal-600 dark:text-teal-400 font-bold uppercase block">P Paid</span>
+                        <span className="text-lg font-extrabold text-teal-600 dark:text-teal-400">{dailyPaid}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-neutral-500/10 border border-neutral-500/20">
+                        <span className="text-[10px] text-neutral-500 font-bold uppercase block">NA N/A</span>
+                        <span className="text-lg font-extrabold text-neutral-600 dark:text-neutral-400">{dailyNA}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <span className="text-neutral-500">Unpaid Daily Absences Fine:</span>
+                      <span className={`font-mono font-bold ${dailyAbsent > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                        {dailyAbsent > 0 ? `₱${dailyAbsent * 10} Unpaid` : '₱0 (Clear)'}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Kitchen (kitchen users) or Events */}
-                  <div className="space-y-3">
-                    {isKitchenUser && (
-                      <>
-                        <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">Kitchen Cleaning Schedule</h3>
-                        <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 space-y-2 text-xs">
-                          {kitchenSched.map(s => (
-                            <div key={s.id} className={`flex justify-between p-2 rounded-lg ${s.rooms.includes(room) ? 'bg-brand-forest/10 border border-brand-forest/30' : ''}`}>
-                              <span className="font-bold text-neutral-900 dark:text-white">{s.dayOfWeek}</span>
-                              <span className="text-neutral-500">Rooms {s.rooms.join(', ')}{s.rooms.includes(room) ? ' · You' : ''}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <h4 className="text-[11px] font-bold text-neutral-600 dark:text-neutral-400 pt-1">My Kitchen Attendance</h4>
-                        <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 space-y-2 text-xs">
-                          {myKitchenAtt.length === 0 ? <p className="text-neutral-500 italic">No records yet.</p> : myKitchenAtt.map(c => (
-                            <div key={c.id} className="flex justify-between items-center">
-                              <span className="text-neutral-600 dark:text-neutral-400">{c.date}</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusChip(c.status)}`}>{c.status}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
+                  {/* Card 2: General Cleaning Breakdown */}
+                  <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-4 shadow-xs">
+                    <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
+                      <div className="flex items-center gap-2">
+                        <Home className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white">General Cleaning Record</h3>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono">
+                        ₱50 fine per absence
+                      </span>
+                    </div>
 
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf pt-1">Event Schedules & Attendance</h3>
-                    <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 space-y-2 text-xs">
-                      {db.meetings.length === 0 ? <p className="text-neutral-500 italic">No events recorded.</p> : db.meetings.map(m => {
-                        const mine = m.attendees.find(a => a.userId === currentUser.id)
+                    <div className="grid grid-cols-5 gap-2 text-center">
+                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">/ Check</span>
+                        <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{generalChecked}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                        <span className="text-[10px] text-sky-600 dark:text-sky-400 font-bold uppercase block">E Excuse</span>
+                        <span className="text-lg font-extrabold text-sky-600 dark:text-sky-400">{generalExcused}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <span className="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase block">A Absent</span>
+                        <span className="text-lg font-extrabold text-red-600 dark:text-red-400">{generalAbsent}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20">
+                        <span className="text-[10px] text-teal-600 dark:text-teal-400 font-bold uppercase block">P Paid</span>
+                        <span className="text-lg font-extrabold text-teal-600 dark:text-teal-400">{generalPaid}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-neutral-500/10 border border-neutral-500/20">
+                        <span className="text-[10px] text-neutral-500 font-bold uppercase block">NA N/A</span>
+                        <span className="text-lg font-extrabold text-neutral-600 dark:text-neutral-400">{generalNA}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <span className="text-neutral-500">Unpaid General Absences Fine:</span>
+                      <span className={`font-mono font-bold ${generalAbsent > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                        {generalAbsent > 0 ? `₱${generalAbsent * 50} Unpaid` : '₱0 (Clear)'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Duty History Table */}
+                <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl overflow-hidden shadow-xs space-y-3 p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-200 dark:border-neutral-850">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white flex items-center gap-2">
+                        <History className="w-4 h-4 text-brand-leaf" />
+                        <span>My Semestral Attendance Log</span>
+                      </h3>
+                      <p className="text-[11px] text-neutral-500">
+                        Detailed history of all logged cleaning attendance and financial reconciliation.
+                      </p>
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-xs">
+                      <button
+                        onClick={() => setOccupantAttFilter('all')}
+                        className={`px-2.5 py-1 rounded-md font-bold transition-colors cursor-pointer ${
+                          occupantAttFilter === 'all'
+                            ? 'bg-[#255f3d] text-white'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        }`}
+                      >
+                        All ({myAllCleaningAtt.length})
+                      </button>
+                      <button
+                        onClick={() => setOccupantAttFilter('daily')}
+                        className={`px-2.5 py-1 rounded-md font-bold transition-colors cursor-pointer ${
+                          occupantAttFilter === 'daily'
+                            ? 'bg-[#255f3d] text-white'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        }`}
+                      >
+                        Daily (₱10)
+                      </button>
+                      <button
+                        onClick={() => setOccupantAttFilter('general')}
+                        className={`px-2.5 py-1 rounded-md font-bold transition-colors cursor-pointer ${
+                          occupantAttFilter === 'general'
+                            ? 'bg-[#255f3d] text-white'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        }`}
+                      >
+                        General (₱50)
+                      </button>
+                    </div>
+                  </div>
+
+                  {displayedRecords.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-neutral-500 italic">
+                      No cleaning attendance records found for this view.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto max-h-72 overflow-y-auto scrollbar-thin">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 text-[10px] uppercase font-bold text-neutral-500 tracking-wider">
+                            <th className="py-2.5 px-3">Date</th>
+                            <th className="py-2.5 px-3">Duty Tier</th>
+                            <th className="py-2.5 px-3">Official Remark</th>
+                            <th className="py-2.5 px-3">Fine Status</th>
+                            <th className="py-2.5 px-3">Clearance Impact</th>
+                            <th className="py-2.5 px-3">Recorded By</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800/60">
+                          {displayedRecords.map((rec) => {
+                            const type = rec.cleaningType || 'daily'
+                            const rate = type === 'daily' ? 10 : 50
+                            const remark = rec.remark || (rec.status === 'present' ? 'check' : rec.status === 'excused' ? 'excuse' : 'absent')
+                            
+                            return (
+                              <tr key={rec.id} className="hover:bg-neutral-50/70 dark:hover:bg-neutral-850/30">
+                                <td className="py-2.5 px-3 font-mono text-neutral-700 dark:text-neutral-300">{rec.date}</td>
+                                <td className="py-2.5 px-3">
+                                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                    type === 'general' ? 'bg-purple-500/15 text-purple-600 dark:text-purple-400' : 'bg-blue-500/15 text-blue-600 dark:text-blue-400'
+                                  }`}>
+                                    {type}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  {remark === 'check' && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                                      / Check (Present)
+                                    </span>
+                                  )}
+                                  {remark === 'excuse' && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30">
+                                      E Excuse
+                                    </span>
+                                  )}
+                                  {remark === 'absent' && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30">
+                                      A Absent
+                                    </span>
+                                  )}
+                                  {remark === 'paid' && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30">
+                                      P Paid (Cleared)
+                                    </span>
+                                  )}
+                                  {remark === 'na' && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-500/15 text-neutral-600 dark:text-neutral-400 border border-neutral-500/30">
+                                      NA Not Available
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono">
+                                  {remark === 'absent' && (
+                                    <span className="text-red-600 dark:text-red-400 font-bold">
+                                      ₱{rate} (Unpaid)
+                                    </span>
+                                  )}
+                                  {remark === 'paid' && (
+                                    <span className="text-teal-600 dark:text-teal-400 font-bold">
+                                      ₱{rate} (Paid)
+                                    </span>
+                                  )}
+                                  {(remark === 'check' || remark === 'excuse' || remark === 'na') && (
+                                    <span className="text-neutral-400">₱0</span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  {remark === 'absent' ? (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                                      Evaluation Hold
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                      Clear
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-neutral-500 text-[10px]">{rec.markedBy || 'SA'}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Schedules & Events Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* General Cleaning Assignment */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2">
+                      <CalendarDays className="w-4 h-4" /> My Assigned Room General Cleaning
+                    </h3>
+                    <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl p-4 space-y-2 text-xs">
+                      {generalSched.map(s => {
+                        const isMyRoom = s.rooms.includes(room)
                         return (
-                          <div key={m.id} className="flex justify-between items-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-950/50">
-                            <div className="min-w-0">
-                              <span className="font-bold text-neutral-900 dark:text-white block truncate">{m.eventName}</span>
-                              <span className="text-[10px] text-neutral-500">{m.date}</span>
-                            </div>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${mine ? statusChip(mine.status) : 'bg-neutral-500/15 text-neutral-500'}`}>{mine ? mine.status : 'N/A'}</span>
+                          <div key={s.id} className={`flex justify-between items-center p-2.5 rounded-xl ${isMyRoom ? 'bg-brand-forest/15 border border-brand-forest/40 text-brand-leaf' : 'bg-neutral-50 dark:bg-neutral-950/50'}`}>
+                            <span className="font-bold">{s.dayOfWeek}</span>
+                            <span className="font-mono text-neutral-600 dark:text-neutral-400">
+                              Rooms: {s.rooms.join(', ')} {isMyRoom ? ' · (Your Room)' : ''}
+                            </span>
                           </div>
                         )
                       })}
                     </div>
                   </div>
+
+                  {/* Event & Assembly Attendance */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2">
+                      <Users className="w-4 h-4" /> Dorm Assembly &amp; Event Attendance
+                    </h3>
+                    <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl p-4 space-y-2 text-xs">
+                      {db.meetings.length === 0 ? (
+                        <p className="text-neutral-500 italic py-2">No dorm events or general assemblies recorded.</p>
+                      ) : (
+                        db.meetings.map(m => {
+                          const mine = m.attendees.find(a => a.userId === currentUser.id)
+                          return (
+                            <div key={m.id} className="flex justify-between items-center p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-950/50">
+                              <div className="min-w-0">
+                                <span className="font-bold text-neutral-900 dark:text-white block truncate">{m.eventName}</span>
+                                <span className="text-[10px] text-neutral-500">{m.date}</span>
+                              </div>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${
+                                mine?.status === 'present' ? 'bg-emerald-500/15 text-emerald-500' :
+                                mine?.status === 'excused' ? 'bg-sky-500/15 text-sky-500' :
+                                mine?.status === 'absent' ? 'bg-red-500/15 text-red-500' :
+                                'bg-neutral-500/15 text-neutral-500'
+                              }`}>
+                                {mine ? mine.status : 'N/A'}
+                              </span>
+                            </div>
+                          )
+                        })
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Kitchen cleaning schedule if kitchen user */}
+                {isKitchenUser && (
+                  <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-3">
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2">
+                      <ChefHat className="w-4 h-4" /> Kitchen Duty Schedule
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      {kitchenSched.map(s => (
+                        <div key={s.id} className="flex justify-between p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-950/50">
+                          <span className="font-bold text-neutral-900 dark:text-white">{s.dayOfWeek}</span>
+                          <span className="text-neutral-500 font-mono">Rooms: {s.rooms.join(', ')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )
           })()}
@@ -1851,6 +2290,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 <p className="text-xs text-neutral-500">Cast your ballots for officer positions and semester evaluators.</p>
               </div>
 
+              {/* Phase 2 Modular Notice */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                    Phase 2 · Soon
+                  </span>
+                  <p className="text-xs leading-relaxed">
+                    <strong>Resident Voting &amp; Elections</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                  </p>
+                </div>
+              </div>
+
               {/* Officer elections */}
               <div className="space-y-4">
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2"><Vote className="w-4 h-4" /> Officer Elections</h3>
@@ -1990,7 +2441,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                     <div>
                       <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">Active Roster</span>
                       <div className="text-3xl font-bold text-neutral-900 dark:text-white mt-1.5">
-                        {db.users.filter(u => u.status === 'active' && u.role === 'occupant').length} <span className="text-sm font-normal text-neutral-800 dark:text-neutral-200">Occupants</span>
+                        {db.users.filter(u => u.status === 'active' && u.role === 'user').length} <span className="text-sm font-normal text-neutral-800 dark:text-neutral-200">Occupants</span>
                       </div>
                     </div>
                     <div className="p-3 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
@@ -2121,7 +2572,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setShowCreateTermModal(true)}
+                    onClick={() => setShowAddTermModal(true)}
                     className="bg-[#255f3d] hover:bg-[#1e4c31] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
                   >
                     + New Term
@@ -2132,6 +2583,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   >
                     Purge Storage
                   </button>
+                </div>
+              </div>
+
+              {/* Phase 2 Modular Notice */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                    Phase 2 · Soon
+                  </span>
+                  <p className="text-xs leading-relaxed">
+                    <strong>Storage and History Management</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                  </p>
                 </div>
               </div>
 
@@ -2455,150 +2918,850 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           )}
 
           {/* TAB 2: Cleaning Schedule & Attendance */}
-          {activeTab === 'cleaning' && (
-            <div className="space-y-6">
-              <div className="pb-4 border-b border-neutral-200 dark:border-neutral-850">
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">General Cleaning Operations</h2>
-                <p className="text-xs text-neutral-500">Check assignments, log daily attendance checklist, and manage schedules.</p>
-              </div>
+          {activeTab === 'cleaning' && (() => {
+            const canManageCleaning = isSA || isSystemAdmin || isDeveloper
+            const activeOccupants = db.users.filter(u => u.status === 'active' && u.role !== 'admin')
+            
+            // Filter by Level (Ground, First, Second, Third, or All)
+            const levelFilteredOccupants = activeOccupants.filter(u => {
+              if (cleaningLevelFilter === 'all') return true
+              return getRoomLevel(u.roomNumber) === cleaningLevelFilter
+            })
 
-              {/* SA Cleaning Setup View */}
-              {isSA && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  {/* Create Schedule Card */}
-                  <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">Configure Clean Mapping</h3>
-                    <form onSubmit={handleAddCleaningSchedule} className="space-y-3 text-xs">
-                      <div className="space-y-1">
-                        <label className="text-neutral-600 dark:text-neutral-400 font-bold">Rooms (comma separated)</label>
-                        <input
-                          type="text"
-                          value={selectedRoomForClean}
-                          onChange={(e) => setSelectedRoomForClean(e.target.value)}
-                          placeholder="e.g. 101, 102"
-                          className="w-full p-2 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-neutral-600 dark:text-neutral-400 font-bold">Assigned Day</label>
-                        <select
-                          value={selectedDayForClean}
-                          onChange={(e) => setSelectedDayForClean(e.target.value)}
-                          className="w-full p-2 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white"
-                        >
-                          <option value="Monday">Monday</option>
-                          <option value="Tuesday">Tuesday</option>
-                          <option value="Wednesday">Wednesday</option>
-                          <option value="Thursday">Thursday</option>
-                          <option value="Friday">Friday</option>
-                        </select>
-                      </div>
-                      <button type="submit" className="w-full py-2 bg-brand-gold hover:bg-brand-gold/90/90 text-neutral-900 font-bold rounded-lg cursor-pointer">
-                        Add Schedule
-                      </button>
-                    </form>
-                  </div>
+            // Room options within the selected level
+            const levelRooms = Array.from(new Set(levelFilteredOccupants.map(u => u.roomNumber).filter(Boolean) as string[])).sort()
 
-                  {/* Attendance Log Card */}
-                  <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl space-y-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">Mark Attendance Checklist</h3>
-                    <div className="space-y-3.5 text-xs">
-                      <div className="p-3 bg-neutral-100 dark:bg-neutral-950 border border-neutral-900 rounded-lg space-y-2 max-h-56 overflow-auto scrollbar-thin">
-                        <p className="text-[10px] text-neutral-500">Date: {new Date().toISOString().split('T')[0]} (Today)</p>
-                        {db.users.filter(u => u.status === 'active' && u.role !== 'admin').map((occ) => {
-                          const todayAtt = db.cleaningAttendance.find(c => c.userId === occ.id && c.date === new Date().toISOString().split('T')[0] && !c.kitchenOnly)
-                          
-                          return (
-                            <div key={occ.id} className="flex justify-between items-center border-b border-neutral-900 pb-2">
-                              <div>
-                                <span className="font-bold text-neutral-900 dark:text-white block">{occ.fullName}</span>
-                                <span className="text-[10px] text-neutral-500">Room {occ.roomNumber || 'None'} (Added: {occ.addedAt})</span>
-                              </div>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => handleMarkCleaningAttendance(occ.id, new Date().toISOString().split('T')[0], 'present')}
-                                  className={`px-2 py-0.5 rounded text-[10px] ${
-                                    todayAtt?.status === 'present' ? 'bg-emerald-950 border border-emerald-900 text-emerald-400 font-bold' : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400'
-                                  }`}
-                                >
-                                  Pres
-                                </button>
-                                <button
-                                  onClick={() => handleMarkCleaningAttendance(occ.id, new Date().toISOString().split('T')[0], 'absent')}
-                                  className={`px-2 py-0.5 rounded text-[10px] ${
-                                    todayAtt?.status === 'absent' ? 'bg-red-950 border border-red-900 text-red-400 font-bold' : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400'
-                                  }`}
-                                >
-                                  Abs
-                                </button>
-                                <button
-                                  onClick={() => handleMarkCleaningAttendance(occ.id, new Date().toISOString().split('T')[0], 'excused')}
-                                  className={`px-2 py-0.5 rounded text-[10px] ${
-                                    todayAtt?.status === 'excused' ? 'bg-brand-forest/20 border border-brand-forest/40 text-brand-leaf font-bold' : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400'
-                                  }`}
-                                >
-                                  Exc
-                                </button>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                      <span className="text-[10px] text-brand-leaf italic block">
-                        * RULE 1 Enforcement: marking Absent will automatically bill the occupant Php 50 fine, verified against their added date.
-                      </span>
+            // Filter by Room & Search Query
+            const filteredOccupants = levelFilteredOccupants.filter(u => {
+              const matchRoom = cleaningRoomFilter === 'all' || u.roomNumber === cleaningRoomFilter
+              const matchSearch = !cleaningSearchQuery.trim() || 
+                u.fullName.toLowerCase().includes(cleaningSearchQuery.toLowerCase()) || 
+                (u.studentId && u.studentId.toLowerCase().includes(cleaningSearchQuery.toLowerCase())) ||
+                (u.roomNumber && u.roomNumber.toLowerCase().includes(cleaningSearchQuery.toLowerCase())) ||
+                (u.degreeProgram && u.degreeProgram.toLowerCase().includes(cleaningSearchQuery.toLowerCase()))
+              return matchRoom && matchSearch
+            })
+
+            const fineRate = cleaningTab === 'daily' ? 10 : 50
+
+            // Helper to generate sheet dates for the selected month and cycle window
+            const getSheetDates = (yearMonth: string) => {
+              const [yStr, mStr] = yearMonth.split('-')
+              const year = parseInt(yStr, 10)
+              const month = parseInt(mStr, 10) - 1
+              const daysInMonth = new Date(year, month + 1, 0).getDate()
+              
+              const dowMap = ['SU', 'M', 'T', 'W', 'TH', 'F', 'SA']
+              const days: { date: string; dayNum: number; dayOfWeek: string }[] = []
+              
+              for (let d = 1; d <= daysInMonth; d++) {
+                const dt = new Date(year, month, d)
+                const dow = dt.getDay()
+                if (dow >= 1 && dow <= 5) {
+                  // Omit PH holidays if August 2026 (Aug 17: Ninoy Aquino Day, Aug 31: National Heroes Day)
+                  if (yearMonth === '2026-08' && (d === 17 || d === 31)) {
+                    continue
+                  }
+                  const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                  days.push({
+                    date: dateStr,
+                    dayNum: d,
+                    dayOfWeek: dowMap[dow]
+                  })
+                }
+              }
+              return days
+            }
+
+            const allMonthWeekdays = getSheetDates(cleaningMonth)
+
+            // Cycle 1 view matches Image 1 directly (Aug 10 - Aug 21)
+            const sheetDates = allMonthWeekdays.filter(d => {
+              if (cleaningMonth === '2026-08') {
+                return (d.dayNum >= 10 && d.dayNum <= 21)
+              }
+              return true
+            })
+
+            // Format Month Display Header (e.g. "MONTH OF AUGUST 2026")
+            const monthHeaderTitle = (() => {
+              const [yStr, mStr] = cleaningMonth.split('-')
+              const dt = new Date(parseInt(yStr, 10), parseInt(mStr, 10) - 1, 1)
+              return `MONTH OF ${dt.toLocaleDateString('en-US', { month: 'long' }).toUpperCase()} ${yStr}`
+            })()
+
+            // Cell Click Interaction (Cycle or Stamp Tool)
+            const handleCellClick = (userId: string, date: string, currentRemark?: CleaningRemark) => {
+              if (!canManageCleaning) return
+
+              if (cleaningActiveTool !== 'cycle') {
+                handleMarkCleaningAttendance(userId, date, cleaningTab, cleaningActiveTool)
+                return
+              }
+
+              // Cycle: clear -> check -> excuse -> absent -> paid -> na -> clear
+              const cycleOrder: (CleaningRemark | 'clear')[] = ['check', 'excuse', 'absent', 'paid', 'na', 'clear']
+              const curIdx = currentRemark ? cycleOrder.indexOf(currentRemark) : -1
+              const next = cycleOrder[curIdx + 1] || 'check'
+
+              if (next === 'clear') {
+                const filteredAtt = db.cleaningAttendance.filter(c => !(c.userId === userId && c.date === date && (c.cleaningType === cleaningTab || (!c.cleaningType && cleaningTab === 'daily'))))
+                const filteredPayments = db.payments.filter(p => !(p.userId === userId && p.type === 'fine' && p.description.includes(date)))
+                updateDbState({ ...db, cleaningAttendance: filteredAtt, payments: filteredPayments })
+                triggerAlert('success', 'Cleared attendance record')
+              } else {
+                handleMarkCleaningAttendance(userId, date, cleaningTab, next)
+              }
+            }
+
+            // Audit log list
+            const auditLogs = db.cleaningAttendance
+              .filter(c => !c.kitchenOnly && (canManageCleaning || c.userId === currentUser.id))
+              .filter(c => {
+                if (cleaningLogFilter === 'daily') return c.cleaningType === 'daily' || !c.cleaningType
+                if (cleaningLogFilter === 'general') return c.cleaningType === 'general'
+                return true
+              })
+              .sort((a, b) => (a.date < b.date ? 1 : -1))
+
+            return (
+              <div className="space-y-6 animate-fade-in">
+                {/* Header & Two-Tier Switcher */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200 dark:border-neutral-850">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-brand-leaf uppercase tracking-wider mb-1">
+                      <Sparkles className="w-4 h-4" /> MMH Semestral Evaluation Sheets
                     </div>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                      Cleaning Attendance &amp; Evaluation Desk
+                    </h2>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      Two-tier cleaning attendance tracking (Daily ₱10 fine &amp; General ₱50 fine) across the 4 MMH Levels with official evaluation sheets.
+                    </p>
+                  </div>
+
+                  {/* Two-Tier Cleaning Tabs */}
+                  <div className="flex items-center p-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-850 rounded-xl shrink-0">
+                    <button
+                      onClick={() => setCleaningTab('daily')}
+                      className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                        cleaningTab === 'daily'
+                          ? 'bg-[#255f3d] text-white shadow-sm'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Daily Cleaning</span>
+                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-black/20 text-white font-mono">₱10 fine</span>
+                    </button>
+                    <button
+                      onClick={() => setCleaningTab('general')}
+                      className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                        cleaningTab === 'general'
+                          ? 'bg-[#255f3d] text-white shadow-sm'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Home className="w-3.5 h-3.5" />
+                      <span>General Cleaning</span>
+                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-black/20 text-white font-mono">₱50 fine</span>
+                    </button>
                   </div>
                 </div>
-              )}
 
-              {/* Schedule View Panel (Visible to All) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                
-                {/* Schedule Day Mapping */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">Day Assignment Map</h3>
-                  <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 space-y-3 text-xs">
-                    {db.cleaningSchedule.filter(s => !s.kitchenOnly).map((s) => (
-                      <div key={s.id} className="flex justify-between border-b border-neutral-200 dark:border-neutral-850 pb-2 last:border-b-0 last:pb-0">
-                        <span className="font-bold text-neutral-900 dark:text-white">{s.dayOfWeek}</span>
-                        <span className="text-neutral-600 dark:text-neutral-400">Rooms: {s.rooms.join(', ')}</span>
-                      </div>
-                    ))}
+                {/* Level Selection Bar (Ground, First, Second, Third) */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-brand-leaf" /> Select MMH Level:
+                    </span>
+                    <span className="text-[11px] font-bold text-neutral-500">
+                      Showing {filteredOccupants.length} residents
+                    </span>
                   </div>
-                </div>
 
-                {/* Personal Cleaning Attendance (Occupants specific view) */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">
-                    {isSA ? 'Global Attendance Logs' : 'My Attendance Logs'}
-                  </h3>
-                  <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-xl p-4 max-h-60 overflow-auto scrollbar-thin space-y-2 text-xs">
-                    {db.cleaningAttendance
-                      .filter(c => !c.kitchenOnly && (isSA || c.userId === currentUser.id))
-                      .map((c) => {
-                        const targetUser = db.users.find(u => u.id === c.userId)
-                        return (
-                          <div key={c.id} className="flex justify-between items-center border-b border-neutral-900 pb-2">
-                            <div>
-                              {isSA && <span className="font-bold text-neutral-900 dark:text-white block">{targetUser?.fullName}</span>}
-                              <span className="text-neutral-500 text-[10px]">Logged Date: {c.date}</span>
-                            </div>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              c.status === 'present' ? 'bg-emerald-950/40 text-emerald-400' : c.status === 'absent' ? 'bg-red-950/40 text-red-400' : 'bg-brand-forest/20 text-brand-leaf'
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                    {MMH_LEVELS.map((lvl) => {
+                      const isSelected = cleaningLevelFilter === lvl.id
+                      const count = activeOccupants.filter(u => lvl.id === 'all' || getRoomLevel(u.roomNumber) === lvl.id).length
+                      return (
+                        <button
+                          key={lvl.id}
+                          onClick={() => {
+                            setCleaningLevelFilter(lvl.id)
+                            setCleaningRoomFilter('all')
+                          }}
+                          className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between group ${
+                            isSelected
+                              ? 'bg-[#255f3d] border-[#255f3d] text-white shadow-sm ring-2 ring-[#255f3d]/30'
+                              : 'bg-white dark:bg-neutral-900/60 border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-[#255f3d]/40 hover:bg-neutral-50 dark:hover:bg-neutral-850/50'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-bold text-xs">{lvl.name}</span>
+                            {isSelected && <span className="w-2 h-2 rounded-full bg-[#efbe2b] shrink-0" />}
+                          </div>
+                          <div className={`text-[10px] mt-1 leading-snug line-clamp-2 ${isSelected ? 'text-white/80' : 'text-neutral-500'}`}>
+                            {lvl.subtitle}
+                          </div>
+                          <div className="mt-2.5 pt-2 border-t border-black/10 dark:border-white/10 flex items-center justify-between">
+                            <span className={`text-[10px] font-mono font-bold ${
+                              isSelected ? 'text-white' : 'text-neutral-600 dark:text-neutral-400'
                             }`}>
-                              {c.status.toUpperCase()}
+                              {count} residents
+                            </span>
+                            <span className={`text-[9px] uppercase font-bold px-1.5 py-0.2 rounded ${
+                              isSelected ? 'bg-black/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
+                            }`}>
+                              {lvl.id === 'all' ? 'All' : lvl.id}
                             </span>
                           </div>
-                        )
-                      })}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
+                {/* View Mode & Filter Controls */}
+                <div className="p-4 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-4 shadow-xs">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    {/* View Mode Toggle */}
+                    <div className="flex items-center gap-1.5 p-1 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl text-xs shrink-0">
+                      <button
+                        onClick={() => setCleaningViewMode('sheet')}
+                        className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          cleaningViewMode === 'sheet'
+                            ? 'bg-[#255f3d] text-white shadow-xs'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        <span>Monthly Sheet Ledger</span>
+                      </button>
+                      <button
+                        onClick={() => setCleaningViewMode('roster')}
+                        className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          cleaningViewMode === 'roster'
+                            ? 'bg-[#255f3d] text-white shadow-xs'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        <span>Daily Inspection Roster</span>
+                      </button>
+                    </div>
+
+                    {/* Filters & Month Picker */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* Month Picker */}
+                      {cleaningViewMode === 'sheet' && (
+                        <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                          <select
+                            value={cleaningMonth}
+                            onChange={(e) => setCleaningMonth(e.target.value)}
+                            className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
+                          >
+                            <option value="2026-08">August 2026 (Official Form)</option>
+                            <option value="2026-09">September 2026</option>
+                            <option value="2026-10">October 2026</option>
+                            <option value="2026-11">November 2026</option>
+                            <option value="2026-12">December 2026</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Date Picker for single-day roster view */}
+                      {cleaningViewMode === 'roster' && (
+                        <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                          <input
+                            type="date"
+                            value={cleaningDate}
+                            onChange={(e) => setCleaningDate(e.target.value)}
+                            className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
+                          />
+                        </div>
+                      )}
+
+                      {/* Room Filter within Level */}
+                      <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+                        <Filter className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                        <select
+                          value={cleaningRoomFilter}
+                          onChange={(e) => setCleaningRoomFilter(e.target.value)}
+                          className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
+                        >
+                          <option value="all">All Rooms in Level ({levelRooms.length})</option>
+                          {levelRooms.map((rm) => (
+                            <option key={rm} value={rm}>
+                              Room {rm}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Search Bar */}
+                      <div className="relative min-w-[180px]">
+                        <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="Search name or ID..."
+                          value={cleaningSearchQuery}
+                          onChange={(e) => setCleaningSearchQuery(e.target.value)}
+                          className="w-full pl-8 pr-3 py-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-xs text-neutral-900 dark:text-white placeholder:text-neutral-500 outline-none focus:border-brand-leaf/50"
+                        />
+                        {cleaningSearchQuery && (
+                          <button
+                            onClick={() => setCleaningSearchQuery('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stamp Tool Selector (for fast ledger entry) */}
+                  {cleaningViewMode === 'sheet' && canManageCleaning && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 text-xs">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] font-bold text-neutral-500 mr-1">Action Tool:</span>
+                        <button
+                          onClick={() => setCleaningActiveTool('cycle')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            cleaningActiveTool === 'cycle'
+                              ? 'bg-[#255f3d] text-white shadow-xs'
+                              : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                          }`}
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Cycle (/ &rarr; E &rarr; A &rarr; P &rarr; NA)</span>
+                        </button>
+                        <button
+                          onClick={() => setCleaningActiveTool('check')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            cleaningActiveTool === 'check'
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'
+                          }`}
+                        >
+                          <span className="font-black text-sm">/</span>
+                          <span>Mark Present (/)</span>
+                        </button>
+                        <button
+                          onClick={() => setCleaningActiveTool('excuse')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            cleaningActiveTool === 'excuse'
+                              ? 'bg-sky-600 text-white shadow-xs'
+                              : 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 hover:bg-sky-500/20'
+                          }`}
+                        >
+                          <span className="font-bold text-xs">E</span>
+                          <span>Mark Excuse (E)</span>
+                        </button>
+                        <button
+                          onClick={() => setCleaningActiveTool('absent')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            cleaningActiveTool === 'absent'
+                              ? 'bg-rose-600 text-white shadow-xs'
+                              : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20'
+                          }`}
+                        >
+                          <span className="font-black text-xs">A</span>
+                          <span>Mark Absent (A · ₱{fineRate})</span>
+                        </button>
+                        <button
+                          onClick={() => setCleaningActiveTool('paid')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            cleaningActiveTool === 'paid'
+                              ? 'bg-teal-600 text-white shadow-xs'
+                              : 'bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 hover:bg-teal-500/20'
+                          }`}
+                        >
+                          <span className="font-bold text-xs">P</span>
+                          <span>Mark Paid (P)</span>
+                        </button>
+                        <button
+                          onClick={() => setCleaningActiveTool('na')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            cleaningActiveTool === 'na'
+                              ? 'bg-neutral-600 text-white shadow-xs'
+                              : 'bg-neutral-500/10 text-neutral-700 dark:text-neutral-400 border border-neutral-500/20 hover:bg-neutral-500/20'
+                          }`}
+                        >
+                          <span className="font-mono font-bold text-[10px]">NA</span>
+                          <span>Mark N/A</span>
+                        </button>
+                      </div>
+
+                      <span className="text-[11px] text-neutral-500 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-neutral-400" />
+                        <span>Click any cell to apply tool or advance cycle</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* =========================================================================
+                    VIEW 1: MONTHLY SHEET LEDGER (Mahogany Sync Theme)
+                   ========================================================================= */}
+                {cleaningViewMode === 'sheet' && (
+                  <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-xs">
+                    {/* Header Bar */}
+                    <div className="px-5 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-[#0c1913] flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#255f3d]/10 text-[#255f3d] dark:text-brand-leaf border border-[#255f3d]/20 flex items-center justify-center shrink-0">
+                          <CalendarDays className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-base text-neutral-900 dark:text-white">
+                              {monthHeaderTitle}
+                            </h3>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#255f3d]/15 text-[#255f3d] dark:text-brand-leaf border border-[#255f3d]/30">
+                              {MMH_LEVELS.find(l => l.id === cleaningLevelFilter)?.name}
+                            </span>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-0.5">
+                            {cleaningTab === 'daily' ? 'Daily Cleaning' : 'General Cleaning'} attendance sheet · Fine: <strong className="text-neutral-800 dark:text-neutral-200 font-mono">₱{fineRate}.00</strong> per absence
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-neutral-600 dark:text-neutral-400 font-mono px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                          {filteredOccupants.length} Residents
+                        </span>
+                      </div>
+                    </div>
+
+                    {filteredOccupants.length === 0 ? (
+                      <div className="p-8 m-4 text-center text-xs text-neutral-500 italic border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl">
+                        No residents found matching the selected level or room filter.
+                      </div>
+                    ) : (
+                      /* Clean Table with single-tier header — NO rowSpan, NO blur smudges */
+                      <div className="overflow-x-auto dark-scrollbar">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="bg-neutral-50/90 dark:bg-[#0c1913] border-b border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider text-[11px]">
+                              {/* Sticky Resident Name Header */}
+                              <th className="py-3 px-4 text-left font-bold min-w-[220px] max-w-[260px] sticky left-0 z-20 bg-neutral-50 dark:bg-[#0c1913] border-r border-neutral-200 dark:border-neutral-800 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.06)]">
+                                Resident Name
+                              </th>
+
+                              {/* Program Header */}
+                              <th className="py-3 px-3 text-center font-bold min-w-[95px] border-r border-neutral-200 dark:border-neutral-800">
+                                Program
+                              </th>
+
+                              {/* Room Header */}
+                              <th className="py-3 px-3 text-center font-bold min-w-[75px] border-r border-neutral-200 dark:border-neutral-800">
+                                Room
+                              </th>
+
+                              {/* Clean Date Headers: Weekday & Day number stacked in a single cell */}
+                              {sheetDates.map((d) => (
+                                <th
+                                  key={d.date}
+                                  className="py-2.5 px-1 text-center border-r border-neutral-200/80 dark:border-neutral-800/80 min-w-[44px]"
+                                >
+                                  <div className="text-[10px] font-bold text-neutral-400 uppercase leading-none">
+                                    {d.dayOfWeek}
+                                  </div>
+                                  <div className="text-xs font-mono font-bold text-neutral-800 dark:text-neutral-200 mt-1 leading-none">
+                                    {d.dayNum}
+                                  </div>
+                                </th>
+                              ))}
+
+                              {/* Total Absences Header */}
+                              <th className="py-3 px-4 text-center font-bold min-w-[110px] text-neutral-700 dark:text-neutral-300">
+                                Total Absences
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800 text-neutral-800 dark:text-neutral-200">
+                            {filteredOccupants.map((occ) => {
+                              // Tally absences in the active cycle
+                              const cycleAbsences = db.cleaningAttendance.filter(c =>
+                                c.userId === occ.id &&
+                                (c.cleaningType === cleaningTab || (!c.cleaningType && cleaningTab === 'daily')) &&
+                                (c.remark === 'absent' || c.remark === 'paid' || (!c.remark && c.status === 'absent')) &&
+                                sheetDates.some(d => d.date === c.date)
+                              ).length
+
+                              return (
+                                <tr key={occ.id} className="hover:bg-neutral-50/70 dark:hover:bg-neutral-850/50 transition-colors group">
+                                  {/* Resident Name: Sticky column */}
+                                  <td className="py-3 px-4 sticky left-0 z-10 bg-white dark:bg-neutral-900 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-850 border-r border-neutral-200 dark:border-neutral-800 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.06)] transition-colors">
+                                    <div className="font-semibold text-neutral-900 dark:text-white text-xs truncate">
+                                      {occ.fullName}
+                                    </div>
+                                    {occ.studentId && (
+                                      <div className="text-[10px] font-mono text-neutral-400 truncate mt-0.5">
+                                        {occ.studentId}
+                                      </div>
+                                    )}
+                                  </td>
+
+                                  {/* Program */}
+                                  <td className="py-3 px-3 text-center font-normal text-neutral-600 dark:text-neutral-400 text-xs border-r border-neutral-200/80 dark:border-neutral-800/80">
+                                    {occ.degreeProgram || '—'}
+                                  </td>
+
+                                  {/* Room */}
+                                  <td className="py-3 px-3 text-center font-mono font-medium text-neutral-800 dark:text-neutral-200 text-xs border-r border-neutral-200/80 dark:border-neutral-800/80">
+                                    {occ.roomNumber || '—'}
+                                  </td>
+
+                                  {/* Day Cells */}
+                                  {sheetDates.map((d) => {
+                                    const att = db.cleaningAttendance.find(c => 
+                                      c.userId === occ.id && 
+                                      c.date === d.date && 
+                                      (c.cleaningType === cleaningTab || (!c.cleaningType && cleaningTab === 'daily')) &&
+                                      !c.kitchenOnly
+                                    )
+
+                                    const remark = att?.remark || (
+                                      att?.status === 'present' ? 'check' : 
+                                      att?.status === 'excused' ? 'excuse' : 
+                                      att?.status === 'absent' ? 'absent' : undefined
+                                    )
+
+                                    return (
+                                      <td
+                                        key={d.date}
+                                        onClick={() => handleCellClick(occ.id, d.date, remark)}
+                                        title={`${occ.fullName} · Room ${occ.roomNumber} · ${d.date} (${d.dayOfWeek}): ${remark ? remark.toUpperCase() : 'Click to mark'}`}
+                                        className={`py-2 px-1 text-center border-r border-neutral-200/60 dark:border-neutral-800/60 transition-colors h-10 ${
+                                          canManageCleaning ? 'cursor-pointer hover:bg-emerald-500/10' : 'cursor-default'
+                                        }`}
+                                      >
+                                        {remark === 'check' && (
+                                          <span className="font-black text-emerald-600 dark:text-emerald-400 text-sm leading-none">
+                                            /
+                                          </span>
+                                        )}
+                                        {remark === 'excuse' && (
+                                          <span className="font-bold text-sky-600 dark:text-sky-400 text-xs leading-none">
+                                            E
+                                          </span>
+                                        )}
+                                        {remark === 'absent' && (
+                                          <span className="font-black text-rose-600 dark:text-rose-400 text-xs leading-none">
+                                            A
+                                          </span>
+                                        )}
+                                        {remark === 'paid' && (
+                                          <span className="font-bold text-teal-600 dark:text-teal-400 text-xs leading-none">
+                                            P
+                                          </span>
+                                        )}
+                                        {remark === 'na' && (
+                                          <span className="font-mono text-neutral-400 text-[10px] leading-none">
+                                            NA
+                                          </span>
+                                        )}
+                                        {!remark && (
+                                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-neutral-250 dark:bg-neutral-700 group-hover:bg-neutral-400 transition-colors" />
+                                        )}
+                                      </td>
+                                    )
+                                  })}
+
+                                  {/* Total Absences */}
+                                  <td className="py-3 px-4 text-center">
+                                    {cycleAbsences > 0 ? (
+                                      <div className="inline-flex flex-col items-center">
+                                        <span className="font-bold text-xs text-rose-600 dark:text-rose-400">
+                                          {cycleAbsences}
+                                        </span>
+                                        <span className="text-[10px] font-mono text-rose-500">
+                                          ₱{cycleAbsences * fineRate}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-neutral-400 dark:text-neutral-600 text-xs">
+                                        0
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Legend Footer */}
+                    <div className="px-5 py-3 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/40 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-500">
+                      <div className="flex flex-wrap items-center gap-4">
+                        <span className="font-bold text-neutral-600 dark:text-neutral-400 text-[11px]">Legend:</span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="font-black text-emerald-600 dark:text-emerald-400 text-sm">/</span>
+                          <span>Checked / Present</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="font-bold text-sky-600 dark:text-sky-400 text-xs">E</span>
+                          <span>Excused</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="font-black text-rose-600 dark:text-rose-400 text-xs">A</span>
+                          <span>Absent (Fine: ₱{fineRate})</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="font-bold text-teal-600 dark:text-teal-400 text-xs">P</span>
+                          <span>Paid</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="font-mono text-neutral-400 text-[10px]">NA</span>
+                          <span>Not Available</span>
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] text-neutral-400">
+                        Click cell to stamp or cycle remarks
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* =========================================================================
+                    VIEW 2: DAILY INSPECTION ROSTER (Mobile / Single-Day Inspection)
+                   ========================================================================= */}
+                {cleaningViewMode === 'roster' && canManageCleaning && (
+                  <div className="bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl overflow-hidden shadow-xs">
+                    <div className="px-5 py-3.5 border-b border-neutral-200 dark:border-neutral-850 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white flex items-center gap-2">
+                          <span>Inspection Roster for {cleaningDate}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#255f3d]/15 text-[#255f3d] dark:text-brand-leaf border border-[#255f3d]/30 uppercase">
+                            {cleaningTab}
+                          </span>
+                        </h3>
+                        <p className="text-[11px] text-neutral-500">
+                          Single-day check for {MMH_LEVELS.find(l => l.id === cleaningLevelFilter)?.name}. Fines (₱{fineRate}) update automatically.
+                        </p>
+                      </div>
+                      <span className="text-xs text-neutral-500 font-mono">
+                        {filteredOccupants.length} residents
+                      </span>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 text-[10px] uppercase font-bold text-neutral-500 tracking-wider">
+                            <th className="py-3 px-4">Resident</th>
+                            <th className="py-3 px-4">Room</th>
+                            <th className="py-3 px-4">Status for {cleaningDate}</th>
+                            <th className="py-3 px-4 text-center">Mark Attendance Remark</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800/60">
+                          {filteredOccupants.map((occ) => {
+                            const att = db.cleaningAttendance.find(c => 
+                              c.userId === occ.id && 
+                              c.date === cleaningDate && 
+                              (c.cleaningType === cleaningTab || (!c.cleaningType && cleaningTab === 'daily')) && 
+                              !c.kitchenOnly
+                            )
+                            const currentRemark: CleaningRemark | 'unrecorded' = att?.remark || (
+                              att?.status === 'present' ? 'check' : 
+                              att?.status === 'excused' ? 'excuse' : 
+                              att?.status === 'absent' ? 'absent' : 'unrecorded'
+                            )
+
+                            return (
+                              <tr key={occ.id} className="hover:bg-neutral-50/70 dark:hover:bg-neutral-850/30">
+                                <td className="py-3 px-4">
+                                  <div className="font-bold text-neutral-900 dark:text-white leading-tight">
+                                    {occ.fullName}
+                                  </div>
+                                  <div className="text-[10px] text-neutral-500 font-mono">
+                                    {occ.studentId || occ.username} · {occ.degreeProgram || 'Resident'}
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200">
+                                    Room {occ.roomNumber || '—'}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4">
+                                  {currentRemark === 'check' && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                                      <Check className="w-3 h-3" /> / Check (Present)
+                                    </span>
+                                  )}
+                                  {currentRemark === 'excuse' && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30">
+                                      E Excuse
+                                    </span>
+                                  )}
+                                  {currentRemark === 'absent' && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30">
+                                      A Absent (₱{fineRate} Unpaid)
+                                    </span>
+                                  )}
+                                  {currentRemark === 'paid' && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30">
+                                      P Paid (₱{fineRate} Cleared)
+                                    </span>
+                                  )}
+                                  {currentRemark === 'na' && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-neutral-500/15 text-neutral-600 dark:text-neutral-400 border border-neutral-500/30">
+                                      NA Not Available
+                                    </span>
+                                  )}
+                                  {currentRemark === 'unrecorded' && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium text-neutral-400 border border-dashed border-neutral-300 dark:border-neutral-800">
+                                      Unrecorded
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-4">
+                                  <div className="flex items-center justify-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkCleaningAttendance(occ.id, cleaningDate, cleaningTab, 'check')}
+                                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                        currentRemark === 'check'
+                                          ? 'bg-emerald-600 text-white shadow-xs'
+                                          : 'bg-neutral-100 dark:bg-neutral-900 hover:bg-emerald-500/15 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800'
+                                      }`}
+                                    >
+                                      /
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkCleaningAttendance(occ.id, cleaningDate, cleaningTab, 'excuse')}
+                                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                        currentRemark === 'excuse'
+                                          ? 'bg-sky-600 text-white shadow-xs'
+                                          : 'bg-neutral-100 dark:bg-neutral-900 hover:bg-sky-500/15 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800'
+                                      }`}
+                                    >
+                                      E
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkCleaningAttendance(occ.id, cleaningDate, cleaningTab, 'absent')}
+                                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                        currentRemark === 'absent'
+                                          ? 'bg-red-600 text-white shadow-xs'
+                                          : 'bg-neutral-100 dark:bg-neutral-900 hover:bg-red-500/15 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800'
+                                      }`}
+                                    >
+                                      A
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkCleaningAttendance(occ.id, cleaningDate, cleaningTab, 'paid')}
+                                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                        currentRemark === 'paid'
+                                          ? 'bg-teal-600 text-white shadow-xs'
+                                          : 'bg-neutral-100 dark:bg-neutral-900 hover:bg-teal-500/15 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800'
+                                      }`}
+                                    >
+                                      P
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkCleaningAttendance(occ.id, cleaningDate, cleaningTab, 'na')}
+                                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                        currentRemark === 'na'
+                                          ? 'bg-neutral-700 text-white shadow-xs'
+                                          : 'bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-500/15 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800'
+                                      }`}
+                                    >
+                                      NA
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Semestral Attendance Audit Logs & Room Schedule Setup */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                  {/* Schedule Day Mapping */}
+                  <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-3">
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2">
+                      <CalendarDays className="w-4 h-4" /> General Cleaning Day Assignment Map
+                    </h3>
+                    <p className="text-xs text-neutral-500">
+                      Weekly room assignments for dormitory general cleaning duties.
+                    </p>
+                    <div className="space-y-2 text-xs">
+                      {db.cleaningSchedule.filter(s => !s.kitchenOnly).map((s) => (
+                        <div key={s.id} className="flex justify-between items-center p-3 rounded-xl bg-neutral-50 dark:bg-neutral-950/50 border border-neutral-200 dark:border-neutral-800">
+                          <span className="font-bold text-neutral-900 dark:text-white">{s.dayOfWeek}</span>
+                          <span className="text-neutral-600 dark:text-neutral-400 font-mono">Rooms: {s.rooms.join(', ')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* SA Configure Clean Mapping */}
+                  {canManageCleaning && (
+                    <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-3">
+                      <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">
+                        Configure Room Cleaning Schedule
+                      </h3>
+                      <p className="text-xs text-neutral-500">
+                        Assign rooms to weekly general cleaning schedule days.
+                      </p>
+                      <form onSubmit={handleAddCleaningSchedule} className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="text-neutral-600 dark:text-neutral-400 font-bold">Rooms (comma separated)</label>
+                          <input
+                            type="text"
+                            value={selectedRoomForClean}
+                            onChange={(e) => setSelectedRoomForClean(e.target.value)}
+                            placeholder="e.g. 004-A, 004-B, 101, 321"
+                            className="w-full p-2.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white outline-none focus:border-brand-leaf/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-neutral-600 dark:text-neutral-400 font-bold">Assigned Day</label>
+                          <select
+                            value={selectedDayForClean}
+                            onChange={(e) => setSelectedDayForClean(e.target.value)}
+                            className="w-full p-2.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white outline-none cursor-pointer"
+                          >
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                          </select>
+                        </div>
+                        <button
+                          type="submit"
+                          className="w-full py-2.5 bg-[#255f3d] hover:bg-[#1e4c31] text-white font-bold rounded-lg cursor-pointer transition-colors shadow-xs"
+                        >
+                          Save Schedule Assignment
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })()}
 
           {/* TAB 3: Kitchen Hub */}
           {activeTab === 'kitchen' && (
@@ -2606,6 +3769,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <div className="pb-4 border-b border-neutral-200 dark:border-neutral-850">
                 <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Communal Kitchen Hub</h2>
                 <p className="text-xs text-neutral-500">Manage kitchen user lists, kitchen duties schedule, and track kitchen absence fines.</p>
+              </div>
+
+              {/* Phase 2 Modular Notice */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                    Phase 2 · Soon
+                  </span>
+                  <p className="text-xs leading-relaxed">
+                    <strong>Communal Kitchen Hub</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                  </p>
+                </div>
               </div>
 
               {/* Kitchen Manager Actions */}
@@ -2736,7 +3911,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               c.status === 'present' ? 'bg-emerald-950/40 text-emerald-400' : 'bg-red-950/40 text-red-400'
                             }`}>
-                              {c.status.toUpperCase()}
+                              {(c.status || c.remark || 'present').toUpperCase()}
                             </span>
                           </div>
                         )
@@ -2982,6 +4157,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <div className="pb-4 border-b border-neutral-200 dark:border-neutral-850">
                 <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Registered Gadget Registry</h2>
                 <p className="text-xs text-neutral-500">Residents declare electrical electronics to register gadget fees, checked by Student Assistants.</p>
+              </div>
+
+              {/* Phase 2 Modular Notice */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                    Phase 2 · Soon
+                  </span>
+                  <p className="text-xs leading-relaxed">
+                    <strong>Electrical Gadget Registry</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -3289,6 +4476,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <div className="pb-4 border-b border-neutral-200 dark:border-neutral-850">
                 <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Officers Elections (MMH Officers)</h2>
                 <p className="text-xs text-neutral-500">Create positions, cast ballots (including Abstain for no-confidence), and automatically assign roles to winners.</p>
+              </div>
+
+              {/* Phase 2 Modular Notice */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                    Phase 2 · Soon
+                  </span>
+                  <p className="text-xs leading-relaxed">
+                    <strong>Officers Elections Management</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -4005,6 +5204,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
           {activeTab === 'articles' && (
             <div className="space-y-6 animate-fade-in">
+              {/* Phase 2 Modular Notice */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shrink-0">
+                    Phase 2 · Soon
+                  </span>
+                  <p className="text-xs leading-relaxed">
+                    <strong>Media &amp; Article Publishing Desk</strong> is marked as <em>Soon</em> to prioritize <strong>Occupant Records for Semestral Evaluation</strong> (Daily &amp; General Cleaning Attendance, Fines, and Financial Clearance).
+                  </p>
+                </div>
+              </div>
+
               {/* Header Banner */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-neutral-900/40 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-850 shadow-sm">
                 <div>

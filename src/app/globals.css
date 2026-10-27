@@ -66,20 +66,70 @@ h1, h2, h3, h4, h5, h6, .academic-serif, .font-display {
   display: none; /* Chrome/Safari */
 }
 
-/* Custom scrollbar utility for codes and payloads */
-.scrollbar-thin::-webkit-scrollbar {
+/* Global sleek custom scrollbars across the application */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.25) transparent;
+}
+
+::-webkit-scrollbar {
   width: 6px;
   height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Custom scrollbar utility for codes and payloads */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
 }
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
 }
 .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #255f3d; /* Forest green scrollbar thumb */
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Specialized ultra-sleek scrollbar for the dark sidebar */
+.dark-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.dark-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 190, 43, 0.5); /* Brand gold highlight */
 }
 
 /* ========================================

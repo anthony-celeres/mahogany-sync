@@ -56,14 +56,14 @@ export default function Sidebar({
 
   const navContent = (
     <>
-      <div className="space-y-4 lg:space-y-6 flex-1 overflow-y-auto">
-        {/* Header Logo */}
-        <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-          <img src="/mahogany_sync-header.png" alt="mahogany-sync logo" className="h-8 w-8 object-contain" />
-          <span className="text-sm font-bold tracking-tight text-white">mahogany <span className="text-[#efbe2b]">sync</span></span>
-        </div>
+      {/* Header Logo - Pinned at top */}
+      <div className="flex items-center gap-3 pb-4 border-b border-white/10 shrink-0">
+        <img src="/mahogany_sync-header.png" alt="mahogany-sync logo" className="h-8 w-8 object-contain" />
+        <span className="text-sm font-bold tracking-tight text-white">mahogany <span className="text-[#efbe2b]">sync</span></span>
+      </div>
 
-        {/* Sidebar Navigation */}
+      {/* Sidebar Navigation - Scrollable with sleek dark scrollbar */}
+      <div className="flex-1 min-h-0 overflow-y-auto py-2 space-y-4 dark-scrollbar pr-1">
         <nav className="flex flex-col gap-1 text-xs font-semibold text-white/80">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -233,7 +233,7 @@ export default function Sidebar({
       </aside>
 
       {/* Desktop Sidebar (always visible on lg+) */}
-      <aside className="hidden lg:flex w-64 shrink-0 h-full bg-brand-deepest-green border-r border-white/10 p-6 flex-col relative z-20 transition-colors duration-150">
+      <aside className="hidden lg:flex w-64 xl:w-72 shrink-0 h-full bg-brand-deepest-green border-r border-white/10 p-5 flex-col relative z-20 transition-colors duration-150">
         {navContent}
       </aside>
     </>
