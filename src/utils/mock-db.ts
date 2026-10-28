@@ -60,12 +60,82 @@ export interface DormEvent {
   description: string
 }
 
+export type CleaningScheduleGroup = 'all' | 'odds' | 'evens'
+
+export interface CleaningScheduleOption {
+  id: CleaningScheduleGroup
+  label: string
+  shortLabel: string
+  description: string
+  roomCount: number
+  occupantCount: number
+}
+
 export interface CleaningSchedule {
   id: string
   dayOfWeek: string // 'Monday', 'Tuesday', etc.
+  targetScope?: CleaningScheduleGroup // 'odds' | 'evens' | 'all'
+  targetLabel?: string // 'All Odd Room Numbers' | 'All Even Room Numbers' | 'All Occupants'
   rooms: string[]
   kitchenOnly: boolean
 }
+
+// Ground: A are Odds, B are Evens; Upper levels: odd/even room numbers
+export function getRoomParity(roomNumber?: string): 'odd' | 'even' | 'other' {
+  if (!roomNumber) return 'other'
+  const clean = roomNumber.trim().toUpperCase()
+  // Ground Level rule: A are odds, B are evens
+  if (clean.endsWith('-A') || clean.endsWith('A')) return 'odd'
+  if (clean.endsWith('-B') || clean.endsWith('B')) return 'even'
+  const m = clean.match(/(\d+)$/)
+  if (m) {
+    return parseInt(m[1], 10) % 2 === 1 ? 'odd' : 'even'
+  }
+  return 'other'
+}
+
+export const MMH_ODD_ROOMS: string[] = [
+  '003-A', '004-A', '005-A',
+  '101', '103', '105', '107', '109',
+  '211', '213', '217', '219',
+  '321', '323', '325', '327', '329'
+]
+
+export const MMH_EVEN_ROOMS: string[] = [
+  '002', '003-B', '004-B', '005-B',
+  '102', '104', '106', '108', '110',
+  '212', '216', '218', '220',
+  '322', '324', '326', '328', '330'
+]
+
+export const MMH_ALL_ROOMS: string[] = [...MMH_ODD_ROOMS, ...MMH_EVEN_ROOMS].sort()
+
+export const CLEANING_SCHEDULE_OPTIONS: CleaningScheduleOption[] = [
+  {
+    id: 'all',
+    label: 'All Occupants',
+    shortLabel: 'All Rooms',
+    description: 'All 35 rooms across MMH (General Cleaning duty)',
+    roomCount: 35,
+    occupantCount: 147,
+  },
+  {
+    id: 'odds',
+    label: 'All Odd Room Numbers',
+    shortLabel: 'Odd Rooms',
+    description: 'Ground A rooms & Odd numbered rooms (101, 103, 211, 321...)',
+    roomCount: 17,
+    occupantCount: 72,
+  },
+  {
+    id: 'evens',
+    label: 'All Even Room Numbers',
+    shortLabel: 'Even Rooms',
+    description: 'Ground B rooms, Room 002 & Even numbered rooms (102, 104, 212, 322...)',
+    roomCount: 18,
+    occupantCount: 75,
+  },
+]
 
 export type CleaningType = 'daily' | 'general'
 export type CleaningRemark = 'check' | 'excuse' | 'absent' | 'paid' | 'na'
@@ -517,14 +587,58 @@ const INITIAL_PENDING_SIGNUPS: MockUser[] = [
 ]
 
 const INITIAL_CLEANING_SCHEDULE: CleaningSchedule[] = [
-  { id: 'cs-1', dayOfWeek: 'Monday', rooms: ['002', '003-A', '003-B', '004-A', '004-B', '005-A', '005-B', '101', '102'], kitchenOnly: false },
-  { id: 'cs-2', dayOfWeek: 'Tuesday', rooms: ['103', '104', '105', '106'], kitchenOnly: false },
-  { id: 'cs-3', dayOfWeek: 'Wednesday', rooms: ['107', '108', '109', '110', '211', '212'], kitchenOnly: false },
-  { id: 'cs-4', dayOfWeek: 'Thursday', rooms: ['213', '216', '217', '218', '219', '220'], kitchenOnly: false },
-  { id: 'cs-5', dayOfWeek: 'Friday', rooms: ['321', '322', '323', '324', '325', '326', '327', '328', '329', '330'], kitchenOnly: false },
-  { id: 'cs-6', dayOfWeek: 'Monday', rooms: ['101', '104'], kitchenOnly: true },
-  { id: 'cs-7', dayOfWeek: 'Wednesday', rooms: ['102', '105'], kitchenOnly: true },
-  { id: 'cs-8', dayOfWeek: 'Friday', rooms: ['103'], kitchenOnly: true },
+  {
+    id: 'cs-1',
+    dayOfWeek: 'Monday',
+    targetScope: 'odds',
+    targetLabel: 'All Odd Room Numbers',
+    rooms: MMH_ODD_ROOMS,
+    kitchenOnly: false,
+  },
+  {
+    id: 'cs-2',
+    dayOfWeek: 'Tuesday',
+    targetScope: 'evens',
+    targetLabel: 'All Even Room Numbers',
+    rooms: MMH_EVEN_ROOMS,
+    kitchenOnly: false,
+  },
+  {
+    id: 'cs-3',
+    dayOfWeek: 'Wednesday',
+    targetScope: 'odds',
+    targetLabel: 'All Odd Room Numbers',
+    rooms: MMH_ODD_ROOMS,
+    kitchenOnly: false,
+  },
+  {
+    id: 'cs-4',
+    dayOfWeek: 'Thursday',
+    targetScope: 'evens',
+    targetLabel: 'All Even Room Numbers',
+    rooms: MMH_EVEN_ROOMS,
+    kitchenOnly: false,
+  },
+  {
+    id: 'cs-5',
+    dayOfWeek: 'Friday',
+    targetScope: 'all',
+    targetLabel: 'All Occupants',
+    rooms: MMH_ALL_ROOMS,
+    kitchenOnly: false,
+  },
+  {
+    id: 'cs-6',
+    dayOfWeek: 'Saturday',
+    targetScope: 'all',
+    targetLabel: 'All Occupants',
+    rooms: MMH_ALL_ROOMS,
+    kitchenOnly: false,
+  },
+  // Kitchen Duty Rotations
+  { id: 'cs-k1', dayOfWeek: 'Monday', rooms: ['101', '104'], kitchenOnly: true },
+  { id: 'cs-k2', dayOfWeek: 'Wednesday', rooms: ['102', '105'], kitchenOnly: true },
+  { id: 'cs-k3', dayOfWeek: 'Friday', rooms: ['103', '106'], kitchenOnly: true },
 ]
 
 const INITIAL_CLEANING_ATTENDANCE: CleaningAttendance[] = [
@@ -885,7 +999,7 @@ export function getDb(): MockDatabase {
       ...parsed,
       users: finalUsers,
       cleaningAttendance: existingAttendance,
-      cleaningSchedule: parsed.cleaningSchedule && parsed.cleaningSchedule.length > 5 ? parsed.cleaningSchedule : DEFAULT_DB.cleaningSchedule,
+      cleaningSchedule: parsed.cleaningSchedule && parsed.cleaningSchedule.some((s: CleaningSchedule) => s.targetScope) ? parsed.cleaningSchedule : DEFAULT_DB.cleaningSchedule,
       articles: parsed.articles && parsed.articles.length > 0 ? parsed.articles : DEFAULT_DB.articles,
     }
     

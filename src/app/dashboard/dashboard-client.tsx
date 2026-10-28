@@ -70,6 +70,12 @@ import {
   DormLevel,
   MMH_LEVELS,
   getRoomLevel,
+  CleaningScheduleGroup,
+  CLEANING_SCHEDULE_OPTIONS,
+  getRoomParity,
+  MMH_ODD_ROOMS,
+  MMH_EVEN_ROOMS,
+  MMH_ALL_ROOMS,
   Gadget,
   Payment,
   Violation,
@@ -106,9 +112,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [selectedPendingDetail, setSelectedPendingDetail] = useState<MockUser | null>(null)
   const [selectedRoomForClean, setSelectedRoomForClean] = useState('')
   const [selectedDayForClean, setSelectedDayForClean] = useState('Monday')
+  const [selectedScheduleTarget, setSelectedScheduleTarget] = useState<CleaningScheduleGroup | 'custom'>('odds')
   const [cleaningTab, setCleaningTab] = useState<CleaningType>('daily')
   const [cleaningDate, setCleaningDate] = useState<string>(new Date().toISOString().split('T')[0])
   const [cleaningLevelFilter, setCleaningLevelFilter] = useState<DormLevel>('all')
+  const [cleaningScheduleFilter, setCleaningScheduleFilter] = useState<CleaningScheduleGroup>('all')
   const [cleaningRoomFilter, setCleaningRoomFilter] = useState<string>('all')
   const [cleaningMonth, setCleaningMonth] = useState<string>('2026-08')
   const [cleaningViewMode, setCleaningViewMode] = useState<'sheet' | 'roster'>('sheet')
@@ -695,25 +703,50 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     triggerAlert('success', `Created direct resident account: ${username}`)
   }
 
-  // SA: Add cleaning schedule room mapping
+  // SA: Add cleaning schedule room mapping (All Odd Rooms, All Even Rooms, All Occupants, or Custom)
   const handleAddCleaningSchedule = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const rooms = selectedRoomForClean.split(',').map(r => r.trim()).filter(Boolean)
+    let rooms: string[] = []
+    let targetLabel = 'All Occupants'
+    let targetScope: CleaningScheduleGroup | undefined = undefined
+
+    if (selectedScheduleTarget === 'odds') {
+      rooms = MMH_ODD_ROOMS
+      targetLabel = 'All Odd Room Numbers'
+      targetScope = 'odds'
+    } else if (selectedScheduleTarget === 'evens') {
+      rooms = MMH_EVEN_ROOMS
+      targetLabel = 'All Even Room Numbers'
+      targetScope = 'evens'
+    } else if (selectedScheduleTarget === 'all') {
+      rooms = MMH_ALL_ROOMS
+      targetLabel = 'All Occupants'
+      targetScope = 'all'
+    } else {
+      rooms = selectedRoomForClean.split(',').map(r => r.trim()).filter(Boolean)
+      targetLabel = `${rooms.length} Custom Rooms`
+    }
+
     if (rooms.length === 0) return
 
     const newSched: CleaningSchedule = {
       id: `cs-${Date.now()}`,
       dayOfWeek: selectedDayForClean,
+      targetScope,
+      targetLabel,
       rooms,
       kitchenOnly: false
     }
 
+    // Replace any existing general cleaning schedule for this day
+    const otherSchedules = db.cleaningSchedule.filter(s => s.kitchenOnly || s.dayOfWeek !== selectedDayForClean)
+
     updateDbState({
       ...db,
-      cleaningSchedule: [...db.cleaningSchedule, newSched]
+      cleaningSchedule: [...otherSchedules, newSched]
     })
     setSelectedRoomForClean('')
-    triggerAlert('success', `Assigned general cleaning schedule for ${selectedDayForClean}`)
+    triggerAlert('success', `Assigned ${targetLabel} for ${selectedDayForClean}`)
   }
 
   // SA: Record Cleaning Attendance Checklist (supports Daily vs General + / , E , A , P , NA)
@@ -2928,11 +2961,20 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               return getRoomLevel(u.roomNumber) === cleaningLevelFilter
             })
 
-            // Room options within the selected level
-            const levelRooms = Array.from(new Set(levelFilteredOccupants.map(u => u.roomNumber).filter(Boolean) as string[])).sort()
+            // Filter by Schedule Group (All Occupants, All Odd Room Numbers, All Even Room Numbers)
+            const scheduleFilteredOccupants = levelFilteredOccupants.filter(u => {
+              if (cleaningScheduleFilter === 'all') return true
+              const parity = getRoomParity(u.roomNumber)
+              if (cleaningScheduleFilter === 'odds') return parity === 'odd'
+              if (cleaningScheduleFilter === 'evens') return parity === 'even'
+              return true
+            })
+
+            // Room options within the selected level and schedule
+            const levelRooms = Array.from(new Set(scheduleFilteredOccupants.map(u => u.roomNumber).filter(Boolean) as string[])).sort()
 
             // Filter by Room & Search Query
-            const filteredOccupants = levelFilteredOccupants.filter(u => {
+            const filteredOccupants = scheduleFilteredOccupants.filter(u => {
               const matchRoom = cleaningRoomFilter === 'all' || u.roomNumber === cleaningRoomFilter
               const matchSearch = !cleaningSearchQuery.trim() || 
                 u.fullName.toLowerCase().includes(cleaningSearchQuery.toLowerCase()) || 
@@ -3092,6 +3134,32 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
                     {/* Filters & Month Picker */}
                     <div className="flex flex-wrap items-center gap-2">
+                      {/* Cleaning Schedule Group Filter: All Occupants, All Odd Room Numbers, All Even Room Numbers */}
+                      <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+                        <Users className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                        <select
+                          value={cleaningScheduleFilter}
+                          onChange={(e) => {
+                            setCleaningScheduleFilter(e.target.value as CleaningScheduleGroup)
+                            setCleaningRoomFilter('all')
+                          }}
+                          className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
+                        >
+                          {CLEANING_SCHEDULE_OPTIONS.map((opt) => {
+                            const count = activeOccupants.filter(u => {
+                              if (opt.id === 'all') return true
+                              const parity = getRoomParity(u.roomNumber)
+                              return opt.id === 'odds' ? parity === 'odd' : parity === 'even'
+                            }).length
+                            return (
+                              <option key={opt.id} value={opt.id}>
+                                {opt.label} ({count})
+                              </option>
+                            )
+                          })}
+                        </select>
+                      </div>
+
                       {/* Level Dropdown Filter */}
                       <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
                         <Layers className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
@@ -3378,7 +3446,15 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
                                   {/* Room */}
                                   <td className="py-3 px-3 text-center font-mono font-medium text-neutral-800 dark:text-neutral-200 text-xs border-r border-neutral-200/80 dark:border-neutral-800/80">
-                                    {occ.roomNumber || '—'}
+                                    <div className="inline-flex items-center gap-1.5">
+                                      <span>{occ.roomNumber || '—'}</span>
+                                      {getRoomParity(occ.roomNumber) === 'odd' && (
+                                        <span className="text-[9px] font-bold px-1 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 font-sans">ODD</span>
+                                      )}
+                                      {getRoomParity(occ.roomNumber) === 'even' && (
+                                        <span className="text-[9px] font-bold px-1 rounded bg-sky-500/15 text-sky-700 dark:text-sky-400 font-sans">EVEN</span>
+                                      )}
+                                    </div>
                                   </td>
 
                                   {/* Day Cells */}
@@ -3660,17 +3736,41 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                   {/* Schedule Day Mapping */}
                   <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-3">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2">
-                      <CalendarDays className="w-4 h-4" /> General Cleaning Day Assignment Map
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf flex items-center gap-2">
+                        <CalendarDays className="w-4 h-4" /> Weekly Cleaning Schedule Rotations
+                      </h3>
+                      <span className="text-[10px] font-bold text-neutral-400">3 Scheduling Modes</span>
+                    </div>
                     <p className="text-xs text-neutral-500">
-                      Weekly room assignments for dormitory general cleaning duties.
+                      Official MMH cleaning duty rotations: All Odd Room Numbers, All Even Room Numbers, and All Occupants (Ground A = Odds, Ground B = Evens).
                     </p>
                     <div className="space-y-2 text-xs">
                       {db.cleaningSchedule.filter(s => !s.kitchenOnly).map((s) => (
                         <div key={s.id} className="flex justify-between items-center p-3 rounded-xl bg-neutral-50 dark:bg-neutral-950/50 border border-neutral-200 dark:border-neutral-800">
-                          <span className="font-bold text-neutral-900 dark:text-white">{s.dayOfWeek}</span>
-                          <span className="text-neutral-600 dark:text-neutral-400 font-mono">Rooms: {s.rooms.join(', ')}</span>
+                          <div>
+                            <span className="font-bold text-neutral-900 dark:text-white block">{s.dayOfWeek}</span>
+                            <span className="text-[11px] text-neutral-500 font-medium">
+                              {s.targetLabel || (s.targetScope === 'odds' ? 'All Odd Room Numbers' : s.targetScope === 'evens' ? 'All Even Room Numbers' : 'All Occupants')}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {s.targetScope === 'odds' && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                                Odds (72)
+                              </span>
+                            )}
+                            {s.targetScope === 'evens' && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/20">
+                                Evens (75)
+                              </span>
+                            )}
+                            {(!s.targetScope || s.targetScope === 'all') && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#255f3d]/15 text-[#255f3d] dark:text-brand-leaf border border-[#255f3d]/20">
+                                All (147)
+                              </span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -3680,22 +3780,39 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   {canManageCleaning && (
                     <div className="p-5 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-3">
                       <h3 className="text-xs font-extrabold uppercase tracking-wider text-brand-leaf">
-                        Configure Room Cleaning Schedule
+                        Assign Cleaning Schedule Duty
                       </h3>
                       <p className="text-xs text-neutral-500">
-                        Assign rooms to weekly general cleaning schedule days.
+                        Assign one of the 3 official scheduling modes to weekly duty days.
                       </p>
                       <form onSubmit={handleAddCleaningSchedule} className="space-y-3 text-xs">
                         <div className="space-y-1">
-                          <label className="text-neutral-600 dark:text-neutral-400 font-bold">Rooms (comma separated)</label>
-                          <input
-                            type="text"
-                            value={selectedRoomForClean}
-                            onChange={(e) => setSelectedRoomForClean(e.target.value)}
-                            placeholder="e.g. 004-A, 004-B, 101, 321"
-                            className="w-full p-2.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white outline-none focus:border-brand-leaf/50"
-                          />
+                          <label className="text-neutral-600 dark:text-neutral-400 font-bold">Scheduling Mode</label>
+                          <select
+                            value={selectedScheduleTarget}
+                            onChange={(e) => setSelectedScheduleTarget(e.target.value as CleaningScheduleGroup | 'custom')}
+                            className="w-full p-2.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white outline-none cursor-pointer font-bold"
+                          >
+                            <option value="odds">All Odd Room Numbers (Ground A + Odds · 72 residents)</option>
+                            <option value="evens">All Even Room Numbers (Ground B, 002 + Evens · 75 residents)</option>
+                            <option value="all">All Occupants (Whole Dormitory · 147 residents)</option>
+                            <option value="custom">Custom Rooms List...</option>
+                          </select>
                         </div>
+
+                        {selectedScheduleTarget === 'custom' && (
+                          <div className="space-y-1">
+                            <label className="text-neutral-600 dark:text-neutral-400 font-bold">Custom Rooms (comma separated)</label>
+                            <input
+                              type="text"
+                              value={selectedRoomForClean}
+                              onChange={(e) => setSelectedRoomForClean(e.target.value)}
+                              placeholder="e.g. 004-A, 004-B, 101, 321"
+                              className="w-full p-2.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-white outline-none focus:border-brand-leaf/50"
+                            />
+                          </div>
+                        )}
+
                         <div className="space-y-1">
                           <label className="text-neutral-600 dark:text-neutral-400 font-bold">Assigned Day</label>
                           <select
