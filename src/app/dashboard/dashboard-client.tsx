@@ -972,7 +972,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     const amount = parseFloat(amountStr)
 
     // Add event due payment for ALL active occupants
-    const activeOccupants = db.users.filter(u => u.role !== 'admin' && u.status === 'active')
+    const activeOccupants = db.users.filter(u => u.role === 'user' && u.status === 'active' && !!u.roomNumber)
     const newPayments: Payment[] = activeOccupants.map(occ => {
       // RULE 1: Effective-from-add-date check
       // If the occupant was added AFTER the event due creation date, technically they shouldn't pay it
@@ -1032,7 +1032,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     if (!eventName || !date) return
 
     // Get list of active occupants to create a baseline attendance (defaulting to present)
-    const activeOccupants = db.users.filter(u => u.role !== 'admin' && u.status === 'active')
+    const activeOccupants = db.users.filter(u => u.role === 'user' && u.status === 'active' && !!u.roomNumber)
     const attendees = activeOccupants.map(occ => ({
       userId: occ.id,
       status: 'present' as const
@@ -2920,7 +2920,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           {/* TAB 2: Cleaning Schedule & Attendance */}
           {activeTab === 'cleaning' && (() => {
             const canManageCleaning = isSA || isSystemAdmin || isDeveloper
-            const activeOccupants = db.users.filter(u => u.status === 'active' && u.role !== 'admin')
+            const activeOccupants = db.users.filter(u => u.status === 'active' && u.role === 'user' && !!u.roomNumber)
             
             // Filter by Level (Ground, First, Second, Third, or All)
             const levelFilteredOccupants = activeOccupants.filter(u => {

@@ -219,7 +219,7 @@ export interface FinancialReport {
   uploadedBy: string
 }
 
-// Preset Users data
+// Preset Users data (System Dev + Dorm Adviser + 147 Occupants)
 export const PRESET_USERS: MockUser[] = [
   {
     id: 'u-0',
@@ -241,202 +241,153 @@ export const PRESET_USERS: MockUser[] = [
     status: 'active',
     addedAt: '2026-06-01',
   },
-  {
-    id: 'u-2',
-    email: 'sa@vsu.edu.ph',
-    fullName: 'John Paul Reyes',
-    username: 'reyes.jp05678',
-    role: 'user',
-    specialRoles: ['SA'],
-    studentId: '23-2-05678',
-    roomNumber: '101',
-    degreeProgram: 'BS in Agriculture',
-    yearLevel: '3rd Year',
-    birthdate: '2005-04-12',
-    mobileNumber: '09172223333',
-    barangay: 'Pangolin',
-    city: 'Baybay',
-    province: 'Leyte',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-  {
-    id: 'u-3',
-    email: 'treasurer@vsu.edu.ph',
-    fullName: 'Juan Miguel Dela Cruz',
-    username: 'delacruz.jm01234',
-    role: 'user',
-    specialRoles: ['Treasurer'],
-    studentId: '22-1-01234',
-    roomNumber: '102',
-    degreeProgram: 'BS in Computer Science',
-    yearLevel: '4th Year',
-    birthdate: '2004-10-15',
-    mobileNumber: '09181112222',
-    barangay: 'Guadalupe',
-    city: 'Baybay',
-    province: 'Leyte',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-  {
-    id: 'u-4',
-    email: 'secretary@vsu.edu.ph',
-    fullName: 'Jose Mari De Los Santos',
-    username: 'delossantos.jm00987',
-    role: 'user',
-    specialRoles: ['Secretary'],
-    studentId: '24-1-00987',
-    roomNumber: '103',
-    degreeProgram: 'BS in Forestry',
-    yearLevel: '2nd Year',
-    birthdate: '2006-01-20',
-    mobileNumber: '09193334444',
-    barangay: 'San Jose',
-    city: 'Baybay',
-    province: 'Leyte',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-  {
-    id: 'u-5',
-    email: 'km@vsu.edu.ph',
-    fullName: 'Anthony Lumapat Celeres Jr.',
-    username: 'celeres.a02249',
-    role: 'user',
-    specialRoles: ['Kitchen Manager'],
-    studentId: '23-1-02249',
-    roomNumber: '104',
-    degreeProgram: 'BS in Information Technology',
-    yearLevel: '3rd Year',
-    birthdate: '2005-08-25',
-    mobileNumber: '09204445555',
-    barangay: 'Patag',
-    city: 'Baybay',
-    province: 'Leyte',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-  {
-    id: 'u-6',
-    email: 'evaluator@vsu.edu.ph',
-    fullName: 'Mark Room 3 Evaluator',
-    username: 'evaluator.mark',
-    role: 'user',
-    specialRoles: ['Evaluator'],
-    studentId: '23-1-08888',
-    roomNumber: '103',
-    degreeProgram: 'BS in Biology',
-    yearLevel: '3rd Year',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-  {
-    id: 'u-7',
-    email: 'occupant@vsu.edu.ph',
-    fullName: 'Regular Occupant',
-    username: 'occupant',
-    role: 'user',
-    specialRoles: [],
-    studentId: '25-1-09999',
-    roomNumber: '105',
-    degreeProgram: 'BS in Civil Engineering',
-    yearLevel: '1st Year',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-  {
-    id: 'u-8',
-    email: 'media@vsu.edu.ph',
-    fullName: 'Marco Alonso (Media Officer)',
-    username: 'alonso.m03311',
-    role: 'user',
-    specialRoles: ['Media'],
-    studentId: '23-1-03311',
-    roomNumber: '104',
-    degreeProgram: 'BS in Development Communication',
-    yearLevel: '3rd Year',
-    birthdate: '2005-09-10',
-    mobileNumber: '09215556666',
-    barangay: 'Pangolin',
-    city: 'Baybay',
-    province: 'Leyte',
-    status: 'active',
-    addedAt: '2026-06-01',
-  },
-
-  // ================= GROUND LEVEL OCCUPANTS =================
-  // Room 4 (004-A: 5 occupants, 004-B: 5 occupants = 10 occupants) - FROM OFFICIAL MMH SHEET
-  { id: 'u-g-11', email: 'bajao.m@vsu.edu.ph', fullName: 'Bajao, Marc Angelo L.', username: 'bajao.m', role: 'user', specialRoles: [], studentId: '24-1-01111', roomNumber: '004-A', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-12', email: 'cabero.j@vsu.edu.ph', fullName: 'Cabero, Jerald Brian T.', username: 'cabero.j', role: 'user', specialRoles: [], studentId: '25-1-01112', roomNumber: '004-A', degreeProgram: 'AB-Philo-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-13', email: 'viter.g@vsu.edu.ph', fullName: 'Viter, Gezer Briel', username: 'viter.g', role: 'user', specialRoles: [], studentId: '24-1-01113', roomNumber: '004-A', degreeProgram: 'BSEd Science-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-14', email: 'miasco.e@vsu.edu.ph', fullName: 'Miasco, Ezra', username: 'miasco.e', role: 'user', specialRoles: [], studentId: '23-1-01114', roomNumber: '004-A', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-15', email: 'lagaret.n@vsu.edu.ph', fullName: 'Lagaret, Niel Wyne', username: 'lagaret.n', role: 'user', specialRoles: [], studentId: '22-1-01115', roomNumber: '004-A', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
-
-  { id: 'u-g-16', email: 'gloria.d@vsu.edu.ph', fullName: 'Gloria, Derick O.', username: 'gloria.d', role: 'user', specialRoles: [], studentId: '22-1-01116', roomNumber: '004-B', degreeProgram: 'BSA Horti-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-17', email: 'maligon.e@vsu.edu.ph', fullName: 'Malig-on, Edward Emmanuel G.', username: 'maligon.e', role: 'user', specialRoles: [], studentId: '23-1-01117', roomNumber: '004-B', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-18', email: 'martinez.j@vsu.edu.ph', fullName: 'Martinez, John Kenneth O.', username: 'martinez.j', role: 'user', specialRoles: [], studentId: '22-1-01118', roomNumber: '004-B', degreeProgram: 'BSA AnSci-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-19', email: 'conejos.h@vsu.edu.ph', fullName: 'Conejos, Harley', username: 'conejos.h', role: 'user', specialRoles: [], studentId: '23-1-01119', roomNumber: '004-B', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-20', email: 'timkang.j@vsu.edu.ph', fullName: 'Timkang, Jayson', username: 'timkang.j', role: 'user', specialRoles: [], studentId: '24-1-01120', roomNumber: '004-B', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-
-  // Room 3 (003-A: 5 occupants, 003-B: 5 occupants = 10 occupants)
-  { id: 'u-g-01', email: 'santos.r@vsu.edu.ph', fullName: 'Santos, Rafael D.', username: 'santos.r', role: 'user', specialRoles: [], studentId: '24-1-01101', roomNumber: '003-A', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-02', email: 'olarte.k@vsu.edu.ph', fullName: 'Olarte, Kevin P.', username: 'olarte.k', role: 'user', specialRoles: [], studentId: '23-1-01102', roomNumber: '003-A', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-03', email: 'tan.c@vsu.edu.ph', fullName: 'Tan, Christian Mark L.', username: 'tan.c', role: 'user', specialRoles: [], studentId: '24-1-01103', roomNumber: '003-A', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-04', email: 'flores.d@vsu.edu.ph', fullName: 'Flores, Dominic R.', username: 'flores.d', role: 'user', specialRoles: [], studentId: '25-1-01104', roomNumber: '003-A', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-05', email: 'villar.a@vsu.edu.ph', fullName: 'Villar, Angelo S.', username: 'villar.a', role: 'user', specialRoles: [], studentId: '23-1-01105', roomNumber: '003-A', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-06', email: 'alcantara.j@vsu.edu.ph', fullName: 'Alcantara, Jhon Rey M.', username: 'alcantara.j', role: 'user', specialRoles: [], studentId: '25-1-01106', roomNumber: '003-B', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-07', email: 'beltran.c@vsu.edu.ph', fullName: 'Beltran, Carl Joshua V.', username: 'beltran.c', role: 'user', specialRoles: [], studentId: '24-1-01107', roomNumber: '003-B', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-08', email: 'cortez.e@vsu.edu.ph', fullName: 'Cortez, Emmanuel B.', username: 'cortez.e', role: 'user', specialRoles: [], studentId: '23-1-01108', roomNumber: '003-B', degreeProgram: 'BSGE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-09', email: 'dizon.p@vsu.edu.ph', fullName: 'Dizon, Patrick Ian N.', username: 'dizon.p', role: 'user', specialRoles: [], studentId: '24-1-01109', roomNumber: '003-B', degreeProgram: 'BSEd-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-10', email: 'enriquez.m@vsu.edu.ph', fullName: 'Enriquez, Mark Louis T.', username: 'enriquez.m', role: 'user', specialRoles: [], studentId: '25-1-01110', roomNumber: '003-B', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-
-  // Room 5 (005-A: 6 occupants, 005-B: 6 occupants = 12 occupants)
-  { id: 'u-g-21', email: 'gacayan.v@vsu.edu.ph', fullName: 'Gacayan, Vince Neil C.', username: 'gacayan.v', role: 'user', specialRoles: [], studentId: '24-1-01121', roomNumber: '005-A', degreeProgram: 'BSFT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-22', email: 'herrera.r@vsu.edu.ph', fullName: 'Herrera, Ronnel M.', username: 'herrera.r', role: 'user', specialRoles: [], studentId: '24-1-01122', roomNumber: '005-A', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-23', email: 'javier.a@vsu.edu.ph', fullName: 'Javier, Adrian Paul E.', username: 'javier.a', role: 'user', specialRoles: [], studentId: '23-1-01123', roomNumber: '005-A', degreeProgram: 'BSME-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-24', email: 'lim.k@vsu.edu.ph', fullName: 'Lim, Keith Ronald G.', username: 'lim.k', role: 'user', specialRoles: [], studentId: '23-1-01124', roomNumber: '005-A', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-25', email: 'mendoza.s@vsu.edu.ph', fullName: 'Mendoza, Sean Kyle P.', username: 'mendoza.s', role: 'user', specialRoles: [], studentId: '25-1-01125', roomNumber: '005-A', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-26', email: 'navarro.c@vsu.edu.ph', fullName: 'Navarro, Clark Kent D.', username: 'navarro.c', role: 'user', specialRoles: [], studentId: '24-1-01126', roomNumber: '005-A', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-27', email: 'ocampo.j@vsu.edu.ph', fullName: 'Ocampo, Justin Drake F.', username: 'ocampo.j', role: 'user', specialRoles: [], studentId: '25-1-01127', roomNumber: '005-B', degreeProgram: 'BSIT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-28', email: 'pascual.b@vsu.edu.ph', fullName: 'Pascual, Bryan Dale T.', username: 'pascual.b', role: 'user', specialRoles: [], studentId: '24-1-01128', roomNumber: '005-B', degreeProgram: 'BSGE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-29', email: 'quirante.d@vsu.edu.ph', fullName: 'Quirante, Dave Allen S.', username: 'quirante.d', role: 'user', specialRoles: [], studentId: '24-1-01129', roomNumber: '005-B', degreeProgram: 'BSN-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-30', email: 'ramos.j@vsu.edu.ph', fullName: 'Ramos, Joshua Kurt B.', username: 'ramos.j', role: 'user', specialRoles: [], studentId: '23-1-01130', roomNumber: '005-B', degreeProgram: 'BSEd-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-31', email: 'salvador.k@vsu.edu.ph', fullName: 'Salvador, Kyle Matthew L.', username: 'salvador.k', role: 'user', specialRoles: [], studentId: '24-1-01131', roomNumber: '005-B', degreeProgram: 'BSF-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-g-32', email: 'tolentino.l@vsu.edu.ph', fullName: 'Tolentino, Lance Gabriel M.', username: 'tolentino.l', role: 'user', specialRoles: [], studentId: '25-1-01132', roomNumber: '005-B', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-
-  // ================= SECOND LEVEL OCCUPANTS (Rooms 211-213 & 216-220, 4 each) =================
-  { id: 'u-2-01', email: 'valdez.m@vsu.edu.ph', fullName: 'Valdez, Miguel A.', username: 'valdez.m', role: 'user', specialRoles: [], studentId: '24-1-02211', roomNumber: '211', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-02', email: 'morales.j@vsu.edu.ph', fullName: 'Morales, Joshua T.', username: 'morales.j', role: 'user', specialRoles: [], studentId: '23-1-02212', roomNumber: '211', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-03', email: 'castro.r@vsu.edu.ph', fullName: 'Castro, Renz P.', username: 'castro.r', role: 'user', specialRoles: [], studentId: '25-1-02213', roomNumber: '211', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-04', email: 'santiago.l@vsu.edu.ph', fullName: 'Santiago, Luis K.', username: 'santiago.l', role: 'user', specialRoles: [], studentId: '24-1-02214', roomNumber: '211', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-05', email: 'mercado.k@vsu.edu.ph', fullName: 'Mercado, Kenneth D.', username: 'mercado.k', role: 'user', specialRoles: [], studentId: '23-1-02215', roomNumber: '212', degreeProgram: 'BSA-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-06', email: 'padilla.a@vsu.edu.ph', fullName: 'Padilla, Aaron C.', username: 'padilla.a', role: 'user', specialRoles: [], studentId: '24-1-02216', roomNumber: '212', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-07', email: 'romero.c@vsu.edu.ph', fullName: 'Romero, Carl B.', username: 'romero.c', role: 'user', specialRoles: [], studentId: '25-1-02217', roomNumber: '212', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-08', email: 'aquino.d@vsu.edu.ph', fullName: 'Aquino, Daniel M.', username: 'aquino.d', role: 'user', specialRoles: [], studentId: '23-1-02218', roomNumber: '212', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-09', email: 'delgado.v@vsu.edu.ph', fullName: 'Delgado, Vince E.', username: 'delgado.v', role: 'user', specialRoles: [], studentId: '24-1-02219', roomNumber: '213', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-10', email: 'espiritu.j@vsu.edu.ph', fullName: 'Espiritu, John Paul R.', username: 'espiritu.j', role: 'user', specialRoles: [], studentId: '24-1-02220', roomNumber: '216', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-11', email: 'ferrari.m@vsu.edu.ph', fullName: 'Ferrari, Marco S.', username: 'ferrari.m', role: 'user', specialRoles: [], studentId: '23-1-02221', roomNumber: '217', degreeProgram: 'BSIT-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-12', email: 'gomez.n@vsu.edu.ph', fullName: 'Gomez, Neil T.', username: 'gomez.n', role: 'user', specialRoles: [], studentId: '24-1-02222', roomNumber: '218', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-13', email: 'hidalgo.p@vsu.edu.ph', fullName: 'Hidalgo, Peter L.', username: 'hidalgo.p', role: 'user', specialRoles: [], studentId: '25-1-02223', roomNumber: '219', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-2-14', email: 'isidro.r@vsu.edu.ph', fullName: 'Isidro, Ronald Q.', username: 'isidro.r', role: 'user', specialRoles: [], studentId: '22-1-02224', roomNumber: '220', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
-
-  // ================= THIRD LEVEL OCCUPANTS (Rooms 321-330, 4 each) =================
-  // Room 321 (FROM OFFICIAL MMH SHEET)
-  { id: 'u-3-01', email: 'robin.h@vsu.edu.ph', fullName: 'Robin, Heaven B.', username: 'robin.h', role: 'user', specialRoles: [], studentId: '24-1-03321', roomNumber: '321', degreeProgram: 'BSEd SocStud-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-02', email: 'pelias.j@vsu.edu.ph', fullName: 'Pelias, John Francis K.', username: 'pelias.j', role: 'user', specialRoles: [], studentId: '25-1-03322', roomNumber: '321', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-03', email: 'reoma.h@vsu.edu.ph', fullName: 'Reoma, Hary Kris M.', username: 'reoma.h', role: 'user', specialRoles: [], studentId: '25-1-03323', roomNumber: '321', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-04', email: 'abarquez.s@vsu.edu.ph', fullName: 'Abarquez, Siemon Danielle B.', username: 'abarquez.s', role: 'user', specialRoles: [], studentId: '25-1-03324', roomNumber: '321', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
-
-  // Room 322 (FROM OFFICIAL MMH SHEET)
-  { id: 'u-3-05', email: 'malima.k@vsu.edu.ph', fullName: 'Malima, Kenjie P.', username: 'malima.k', role: 'user', specialRoles: [], studentId: '23-1-03325', roomNumber: '322', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-06', email: 'soriano.g@vsu.edu.ph', fullName: 'Soriano, Gerald C.', username: 'soriano.g', role: 'user', specialRoles: [], studentId: '24-1-03326', roomNumber: '322', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-07', email: 'teodoro.m@vsu.edu.ph', fullName: 'Teodoro, Marvin B.', username: 'teodoro.m', role: 'user', specialRoles: [], studentId: '23-1-03327', roomNumber: '322', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-08', email: 'umali.j@vsu.edu.ph', fullName: 'Umali, Jerome D.', username: 'umali.j', role: 'user', specialRoles: [], studentId: '24-1-03328', roomNumber: '322', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-
-  { id: 'u-3-09', email: 'villegas.r@vsu.edu.ph', fullName: 'Villegas, Raymond S.', username: 'villegas.r', role: 'user', specialRoles: [], studentId: '23-1-03329', roomNumber: '323', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-10', email: 'yap.k@vsu.edu.ph', fullName: 'Yap, Kevin L.', username: 'yap.k', role: 'user', specialRoles: [], studentId: '24-1-03330', roomNumber: '324', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
-  { id: 'u-3-11', email: 'zamora.a@vsu.edu.ph', fullName: 'Zamora, Anthony F.', username: 'zamora.a', role: 'user', specialRoles: [], studentId: '25-1-03331', roomNumber: '325', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-01', email: 'santos.r@vsu.edu.ph', fullName: 'Santos, Rafael D.', username: 'santos.rd01101', role: 'user', specialRoles: [], studentId: '24-1-01101', roomNumber: '003-A', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-02', email: 'olarte.k@vsu.edu.ph', fullName: 'Olarte, Kevin P.', username: 'olarte.kp01102', role: 'user', specialRoles: [], studentId: '23-1-01102', roomNumber: '003-A', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-03', email: 'tan.c@vsu.edu.ph', fullName: 'Tan, Christian Mark L.', username: 'tan.cml01103', role: 'user', specialRoles: [], studentId: '24-1-01103', roomNumber: '003-A', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-04', email: 'flores.d@vsu.edu.ph', fullName: 'Flores, Dominic R.', username: 'flores.dr01104', role: 'user', specialRoles: [], studentId: '25-1-01104', roomNumber: '003-A', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-05', email: 'villar.a@vsu.edu.ph', fullName: 'Villar, Angelo S.', username: 'villar.as01105', role: 'user', specialRoles: [], studentId: '23-1-01105', roomNumber: '003-A', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-06', email: 'alcantara.j@vsu.edu.ph', fullName: 'Alcantara, Jhon Rey M.', username: 'alcantara.jrm01106', role: 'user', specialRoles: [], studentId: '25-1-01106', roomNumber: '003-B', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-07', email: 'beltran.c@vsu.edu.ph', fullName: 'Beltran, Carl Joshua V.', username: 'beltran.cjv01107', role: 'user', specialRoles: [], studentId: '24-1-01107', roomNumber: '003-B', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-08', email: 'cortez.e@vsu.edu.ph', fullName: 'Cortez, Emmanuel B.', username: 'cortez.eb01108', role: 'user', specialRoles: [], studentId: '23-1-01108', roomNumber: '003-B', degreeProgram: 'BSGE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-09', email: 'dizon.p@vsu.edu.ph', fullName: 'Dizon, Patrick Ian N.', username: 'dizon.pin01109', role: 'user', specialRoles: [], studentId: '24-1-01109', roomNumber: '003-B', degreeProgram: 'BSEd-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-10', email: 'enriquez.m@vsu.edu.ph', fullName: 'Enriquez, Mark Louis T.', username: 'enriquez.mlt01110', role: 'user', specialRoles: [], studentId: '25-1-01110', roomNumber: '003-B', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-11', email: 'bajao.m@vsu.edu.ph', fullName: 'Bajao, Marc Angelo L.', username: 'bajao.mal01111', role: 'user', specialRoles: [], studentId: '24-1-01111', roomNumber: '004-A', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-12', email: 'cabero.j@vsu.edu.ph', fullName: 'Cabero, Jerald Brian T.', username: 'cabero.jbt01112', role: 'user', specialRoles: [], studentId: '25-1-01112', roomNumber: '004-A', degreeProgram: 'AB-Philo-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-13', email: 'viter.g@vsu.edu.ph', fullName: 'Viter, Gezer Briel', username: 'viter.gb01113', role: 'user', specialRoles: [], studentId: '24-1-01113', roomNumber: '004-A', degreeProgram: 'BSEd Science-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-14', email: 'miasco.e@vsu.edu.ph', fullName: 'Miasco, Ezra', username: 'miasco.e01114', role: 'user', specialRoles: [], studentId: '23-1-01114', roomNumber: '004-A', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-15', email: 'lagaret.n@vsu.edu.ph', fullName: 'Lagaret, Niel Wyne', username: 'lagaret.nw01115', role: 'user', specialRoles: [], studentId: '22-1-01115', roomNumber: '004-A', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-16', email: 'gloria.d@vsu.edu.ph', fullName: 'Gloria, Derick O.', username: 'gloria.do01116', role: 'user', specialRoles: [], studentId: '22-1-01116', roomNumber: '004-B', degreeProgram: 'BSA Horti-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-17', email: 'maligon.e@vsu.edu.ph', fullName: 'Malig-on, Edward Emmanuel G.', username: 'maligon.eeg01117', role: 'user', specialRoles: [], studentId: '23-1-01117', roomNumber: '004-B', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-18', email: 'martinez.j@vsu.edu.ph', fullName: 'Martinez, John Kenneth O.', username: 'martinez.jko01118', role: 'user', specialRoles: [], studentId: '22-1-01118', roomNumber: '004-B', degreeProgram: 'BSA AnSci-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-19', email: 'conejos.h@vsu.edu.ph', fullName: 'Conejos, Harley', username: 'conejos.h01119', role: 'user', specialRoles: [], studentId: '23-1-01119', roomNumber: '004-B', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-20', email: 'timkang.j@vsu.edu.ph', fullName: 'Timkang, Jayson', username: 'timkang.j01120', role: 'user', specialRoles: [], studentId: '24-1-01120', roomNumber: '004-B', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-21', email: 'gacayan.v@vsu.edu.ph', fullName: 'Gacayan, Vince Neil C.', username: 'gacayan.vnc01121', role: 'user', specialRoles: [], studentId: '24-1-01121', roomNumber: '005-A', degreeProgram: 'BSFT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-22', email: 'herrera.r@vsu.edu.ph', fullName: 'Herrera, Ronnel M.', username: 'herrera.rm01122', role: 'user', specialRoles: [], studentId: '24-1-01122', roomNumber: '005-A', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-23', email: 'javier.a@vsu.edu.ph', fullName: 'Javier, Adrian Paul E.', username: 'javier.ape01123', role: 'user', specialRoles: [], studentId: '23-1-01123', roomNumber: '005-A', degreeProgram: 'BSME-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-24', email: 'lim.k@vsu.edu.ph', fullName: 'Lim, Keith Ronald G.', username: 'lim.krg01124', role: 'user', specialRoles: [], studentId: '23-1-01124', roomNumber: '005-A', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-25', email: 'mendoza.s@vsu.edu.ph', fullName: 'Mendoza, Sean Kyle P.', username: 'mendoza.skp01125', role: 'user', specialRoles: [], studentId: '25-1-01125', roomNumber: '005-A', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-26', email: 'navarro.c@vsu.edu.ph', fullName: 'Navarro, Clark Kent D.', username: 'navarro.ckd01126', role: 'user', specialRoles: [], studentId: '24-1-01126', roomNumber: '005-A', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-27', email: 'ocampo.j@vsu.edu.ph', fullName: 'Ocampo, Justin Drake F.', username: 'ocampo.jdf01127', role: 'user', specialRoles: [], studentId: '25-1-01127', roomNumber: '005-B', degreeProgram: 'BSIT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-28', email: 'pascual.b@vsu.edu.ph', fullName: 'Pascual, Bryan Dale T.', username: 'pascual.bdt01128', role: 'user', specialRoles: [], studentId: '24-1-01128', roomNumber: '005-B', degreeProgram: 'BSGE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-29', email: 'quirante.d@vsu.edu.ph', fullName: 'Quirante, Dave Allen S.', username: 'quirante.das01129', role: 'user', specialRoles: [], studentId: '24-1-01129', roomNumber: '005-B', degreeProgram: 'BSN-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-30', email: 'ramos.j@vsu.edu.ph', fullName: 'Ramos, Joshua Kurt B.', username: 'ramos.jkb01130', role: 'user', specialRoles: [], studentId: '23-1-01130', roomNumber: '005-B', degreeProgram: 'BSEd-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-31', email: 'salvador.k@vsu.edu.ph', fullName: 'Salvador, Kyle Matthew L.', username: 'salvador.kml01131', role: 'user', specialRoles: [], studentId: '24-1-01131', roomNumber: '005-B', degreeProgram: 'BSF-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-g-32', email: 'tolentino.l@vsu.edu.ph', fullName: 'Tolentino, Lance Gabriel M.', username: 'tolentino.lgm01132', role: 'user', specialRoles: [], studentId: '25-1-01132', roomNumber: '005-B', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2', email: 'sa@vsu.edu.ph', fullName: 'Reyes, John Paul', username: 'reyes.jp05678', role: 'user', specialRoles: ['SA'], studentId: '23-2-05678', roomNumber: '101', degreeProgram: 'BS in Agriculture', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-01', email: 'abad.c@vsu.edu.ph', fullName: 'Abad, Christian V.', username: 'abad.cv01133', role: 'user', specialRoles: [], studentId: '25-1-01133', roomNumber: '101', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-02', email: 'bautista.p@vsu.edu.ph', fullName: 'Bautista, Paulo M.', username: 'bautista.pm01134', role: 'user', specialRoles: [], studentId: '24-1-01134', roomNumber: '101', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-03', email: 'castillo.a@vsu.edu.ph', fullName: 'Castillo, Andrei G.', username: 'castillo.ag01135', role: 'user', specialRoles: [], studentId: '25-1-01135', roomNumber: '101', degreeProgram: 'BSCE-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-04', email: 'david.s@vsu.edu.ph', fullName: 'David, Sean Patrick L.', username: 'david.spl01136', role: 'user', specialRoles: [], studentId: '24-1-01136', roomNumber: '101', degreeProgram: 'BSME-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3', email: 'treasurer@vsu.edu.ph', fullName: 'Dela Cruz, Juan Miguel', username: 'delacruz.jm01234', role: 'user', specialRoles: ['Treasurer'], studentId: '22-1-01234', roomNumber: '102', degreeProgram: 'BS in Computer Science', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-05', email: 'esteban.g@vsu.edu.ph', fullName: 'Esteban, Gerald K.', username: 'esteban.gk01137', role: 'user', specialRoles: [], studentId: '24-1-01137', roomNumber: '102', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-06', email: 'fabian.r@vsu.edu.ph', fullName: 'Fabian, Renz J.', username: 'fabian.rj01138', role: 'user', specialRoles: [], studentId: '23-1-01138', roomNumber: '102', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-07', email: 'garcia.m@vsu.edu.ph', fullName: 'Garcia, Mark Anthony D.', username: 'garcia.mad01139', role: 'user', specialRoles: [], studentId: '25-1-01139', roomNumber: '102', degreeProgram: 'BSGE-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-4', email: 'secretary@vsu.edu.ph', fullName: 'De Los Santos, Jose Mari', username: 'delossantos.jm00987', role: 'user', specialRoles: ['Secretary'], studentId: '24-1-00987', roomNumber: '103', degreeProgram: 'BS in Forestry', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-6', email: 'evaluator@vsu.edu.ph', fullName: 'Hermoso, Mark Evaluator', username: 'hermoso.me08888', role: 'user', specialRoles: ['Evaluator'], studentId: '23-1-08888', roomNumber: '103', degreeProgram: 'BS in Biology', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-08', email: 'ignacio.f@vsu.edu.ph', fullName: 'Ignacio, Francis B.', username: 'ignacio.fb01140', role: 'user', specialRoles: [], studentId: '24-1-01140', roomNumber: '103', degreeProgram: 'BSFT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-09', email: 'jacinto.n@vsu.edu.ph', fullName: 'Jacinto, Neil Allen P.', username: 'jacinto.nap01141', role: 'user', specialRoles: [], studentId: '25-1-01141', roomNumber: '103', degreeProgram: 'BSN-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-5', email: 'km@vsu.edu.ph', fullName: 'Celeres, Anthony Lumapat Jr.', username: 'celeres.alj02249', role: 'user', specialRoles: ['Kitchen Manager'], studentId: '23-1-02249', roomNumber: '104', degreeProgram: 'BS in Information Technology', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-8', email: 'media@vsu.edu.ph', fullName: 'Alonso, Marco (Media Officer)', username: 'alonso.mo03311', role: 'user', specialRoles: ['Media'], studentId: '23-1-03311', roomNumber: '104', degreeProgram: 'BS in Development Communication', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-10', email: 'lacson.k@vsu.edu.ph', fullName: 'Lacson, Kenneth M.', username: 'lacson.km01142', role: 'user', specialRoles: [], studentId: '23-1-01142', roomNumber: '104', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-11', email: 'manalo.d@vsu.edu.ph', fullName: 'Manalo, Dave R.', username: 'manalo.dr01143', role: 'user', specialRoles: [], studentId: '24-1-01143', roomNumber: '104', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-7', email: 'occupant@vsu.edu.ph', fullName: 'Noriega, Carl Vincent S.', username: 'noriega.cvs09999', role: 'user', specialRoles: [], studentId: '25-1-09999', roomNumber: '105', degreeProgram: 'BS in Civil Engineering', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-12', email: 'ortega.r@vsu.edu.ph', fullName: 'Ortega, Reymark C.', username: 'ortega.rc01144', role: 'user', specialRoles: [], studentId: '24-1-01144', roomNumber: '105', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-13', email: 'perez.j@vsu.edu.ph', fullName: 'Perez, Joshua Dan T.', username: 'perez.jdt01145', role: 'user', specialRoles: [], studentId: '23-1-01145', roomNumber: '105', degreeProgram: 'BSME-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-14', email: 'quizon.a@vsu.edu.ph', fullName: 'Quizon, Arvin L.', username: 'quizon.al01146', role: 'user', specialRoles: [], studentId: '25-1-01146', roomNumber: '105', degreeProgram: 'BSIT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-15', email: 'rivera.d@vsu.edu.ph', fullName: 'Rivera, Dan Michael E.', username: 'rivera.dme01147', role: 'user', specialRoles: [], studentId: '24-1-01147', roomNumber: '106', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-16', email: 'soriano.k@vsu.edu.ph', fullName: 'Soriano, Keith Brian F.', username: 'soriano.kbf01148', role: 'user', specialRoles: [], studentId: '24-1-01148', roomNumber: '106', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-17', email: 'torres.c@vsu.edu.ph', fullName: 'Torres, Christian Paul G.', username: 'torres.cpg01149', role: 'user', specialRoles: [], studentId: '23-1-01149', roomNumber: '106', degreeProgram: 'BSF-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-18', email: 'urbina.m@vsu.edu.ph', fullName: 'Urbina, Matthew J.', username: 'urbina.mj01150', role: 'user', specialRoles: [], studentId: '24-1-01150', roomNumber: '106', degreeProgram: 'BSGE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-19', email: 'valenzuela.j@vsu.edu.ph', fullName: 'Valenzuela, James Ryan H.', username: 'valenzuela.jrh01151', role: 'user', specialRoles: [], studentId: '24-1-01151', roomNumber: '107', degreeProgram: 'BSEd-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-20', email: 'wong.a@vsu.edu.ph', fullName: 'Wong, Aaron John K.', username: 'wong.ajk01152', role: 'user', specialRoles: [], studentId: '25-1-01152', roomNumber: '107', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-21', email: 'yabut.k@vsu.edu.ph', fullName: 'Yabut, Kyle Patrick N.', username: 'yabut.kpn01153', role: 'user', specialRoles: [], studentId: '24-1-01153', roomNumber: '107', degreeProgram: 'BSME-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-22', email: 'zapata.i@vsu.edu.ph', fullName: 'Zapata, Ian Gabriel P.', username: 'zapata.igp01154', role: 'user', specialRoles: [], studentId: '23-1-01154', roomNumber: '107', degreeProgram: 'BSA-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-23', email: 'alcantara.e@vsu.edu.ph', fullName: 'Alcantara, Eric Vincent R.', username: 'alcantara.evr01155', role: 'user', specialRoles: [], studentId: '24-1-01155', roomNumber: '108', degreeProgram: 'BSN-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-24', email: 'bernal.d@vsu.edu.ph', fullName: 'Bernal, Dominic S.', username: 'bernal.ds01156', role: 'user', specialRoles: [], studentId: '25-1-01156', roomNumber: '108', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-25', email: 'capistrano.l@vsu.edu.ph', fullName: 'Capistrano, Lloyd M.', username: 'capistrano.lm01157', role: 'user', specialRoles: [], studentId: '23-1-01157', roomNumber: '108', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-26', email: 'domingo.p@vsu.edu.ph', fullName: 'Domingo, Paul Jansen T.', username: 'domingo.pjt01158', role: 'user', specialRoles: [], studentId: '23-1-01158', roomNumber: '108', degreeProgram: 'BSIT-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-27', email: 'evangelista.j@vsu.edu.ph', fullName: 'Evangelista, John Dave V.', username: 'evangelista.jdv01159', role: 'user', specialRoles: [], studentId: '24-1-01159', roomNumber: '109', degreeProgram: 'BSA Agro-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-28', email: 'fajardo.j@vsu.edu.ph', fullName: 'Fajardo, Justin Troy A.', username: 'fajardo.jta01160', role: 'user', specialRoles: [], studentId: '25-1-01160', roomNumber: '109', degreeProgram: 'BSAB-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-29', email: 'guerrero.r@vsu.edu.ph', fullName: 'Guerrero, Ruel B.', username: 'guerrero.rb01161', role: 'user', specialRoles: [], studentId: '22-1-01161', roomNumber: '109', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-30', email: 'hernandez.c@vsu.edu.ph', fullName: 'Hernandez, Carlo Miguel C.', username: 'hernandez.cmc01162', role: 'user', specialRoles: [], studentId: '24-1-01162', roomNumber: '109', degreeProgram: 'BSF-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-31', email: 'ibarra.v@vsu.edu.ph', fullName: 'Ibarra, Vince Joseph D.', username: 'ibarra.vjd01163', role: 'user', specialRoles: [], studentId: '25-1-01163', roomNumber: '110', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-32', email: 'jimenez.k@vsu.edu.ph', fullName: 'Jimenez, Kurt Russell E.', username: 'jimenez.kre01164', role: 'user', specialRoles: [], studentId: '24-1-01164', roomNumber: '110', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-33', email: 'katigbak.l@vsu.edu.ph', fullName: 'Katigbak, Lance F.', username: 'katigbak.lf01165', role: 'user', specialRoles: [], studentId: '24-1-01165', roomNumber: '110', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-1-34', email: 'lao.p@vsu.edu.ph', fullName: 'Lao, Peter Gabriel G.', username: 'lao.pgg01166', role: 'user', specialRoles: [], studentId: '23-1-01166', roomNumber: '110', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-01', email: 'valdez.m@vsu.edu.ph', fullName: 'Valdez, Miguel A.', username: 'valdez.ma02211', role: 'user', specialRoles: [], studentId: '24-1-02211', roomNumber: '211', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-02', email: 'morales.j@vsu.edu.ph', fullName: 'Morales, Joshua T.', username: 'morales.jt02212', role: 'user', specialRoles: [], studentId: '23-1-02212', roomNumber: '211', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-03', email: 'castro.r@vsu.edu.ph', fullName: 'Castro, Renz P.', username: 'castro.rp02213', role: 'user', specialRoles: [], studentId: '25-1-02213', roomNumber: '211', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-04', email: 'santiago.l@vsu.edu.ph', fullName: 'Santiago, Luis K.', username: 'santiago.lk02214', role: 'user', specialRoles: [], studentId: '24-1-02214', roomNumber: '211', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-05', email: 'alvarez.d@vsu.edu.ph', fullName: 'Alvarez, Diego M.', username: 'alvarez.dm02215', role: 'user', specialRoles: [], studentId: '24-1-02215', roomNumber: '211', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-06', email: 'mercado.k@vsu.edu.ph', fullName: 'Mercado, Kenneth D.', username: 'mercado.kd02216', role: 'user', specialRoles: [], studentId: '23-1-02216', roomNumber: '212', degreeProgram: 'BSA-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-07', email: 'padilla.a@vsu.edu.ph', fullName: 'Padilla, Aaron C.', username: 'padilla.ac02217', role: 'user', specialRoles: [], studentId: '24-1-02217', roomNumber: '212', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-08', email: 'romero.c@vsu.edu.ph', fullName: 'Romero, Carl B.', username: 'romero.cb02218', role: 'user', specialRoles: [], studentId: '25-1-02218', roomNumber: '212', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-09', email: 'aquino.d@vsu.edu.ph', fullName: 'Aquino, Daniel M.', username: 'aquino.dm02219', role: 'user', specialRoles: [], studentId: '23-1-02219', roomNumber: '212', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-10', email: 'delgado.v@vsu.edu.ph', fullName: 'Delgado, Vince E.', username: 'delgado.ve02220', role: 'user', specialRoles: [], studentId: '24-1-02220', roomNumber: '213', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-11', email: 'estrada.j@vsu.edu.ph', fullName: 'Estrada, John Carlo F.', username: 'estrada.jcf02221', role: 'user', specialRoles: [], studentId: '24-1-02221', roomNumber: '213', degreeProgram: 'BSGE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-12', email: 'fuentes.r@vsu.edu.ph', fullName: 'Fuentes, Ronald G.', username: 'fuentes.rg02222', role: 'user', specialRoles: [], studentId: '23-1-02222', roomNumber: '213', degreeProgram: 'BSME-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-13', email: 'guinto.p@vsu.edu.ph', fullName: 'Guinto, Paolo H.', username: 'guinto.ph02223', role: 'user', specialRoles: [], studentId: '25-1-02223', roomNumber: '213', degreeProgram: 'BSCE-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-14', email: 'espiritu.j@vsu.edu.ph', fullName: 'Espiritu, John Paul R.', username: 'espiritu.jpr02224', role: 'user', specialRoles: [], studentId: '24-1-02224', roomNumber: '216', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-15', email: 'ilagan.k@vsu.edu.ph', fullName: 'Ilagan, Kevin Dave J.', username: 'ilagan.kdj02225', role: 'user', specialRoles: [], studentId: '24-1-02225', roomNumber: '216', degreeProgram: 'BSFT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-16', email: 'jocson.r@vsu.edu.ph', fullName: 'Jocson, Raymond K.', username: 'jocson.rk02226', role: 'user', specialRoles: [], studentId: '25-1-02226', roomNumber: '216', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-17', email: 'labrador.j@vsu.edu.ph', fullName: 'Labrador, Jeffrey L.', username: 'labrador.jl02227', role: 'user', specialRoles: [], studentId: '23-1-02227', roomNumber: '216', degreeProgram: 'BSIT-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-18', email: 'ferrari.m@vsu.edu.ph', fullName: 'Ferrari, Marco S.', username: 'ferrari.ms02228', role: 'user', specialRoles: [], studentId: '23-1-02228', roomNumber: '217', degreeProgram: 'BSIT-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-19', email: 'macaraeg.n@vsu.edu.ph', fullName: 'Macaraeg, Nathan M.', username: 'macaraeg.nm02229', role: 'user', specialRoles: [], studentId: '24-1-02229', roomNumber: '217', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-20', email: 'nacario.p@vsu.edu.ph', fullName: 'Nacario, Philip N.', username: 'nacario.pn02230', role: 'user', specialRoles: [], studentId: '23-1-02230', roomNumber: '217', degreeProgram: 'BSF-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-21', email: 'obra.s@vsu.edu.ph', fullName: 'Obra, Sean Michael P.', username: 'obra.smp02231', role: 'user', specialRoles: [], studentId: '25-1-02231', roomNumber: '217', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-22', email: 'gomez.n@vsu.edu.ph', fullName: 'Gomez, Neil T.', username: 'gomez.nt02232', role: 'user', specialRoles: [], studentId: '24-1-02232', roomNumber: '218', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-23', email: 'pabilona.t@vsu.edu.ph', fullName: 'Pabilona, Tristan Q.', username: 'pabilona.tq02233', role: 'user', specialRoles: [], studentId: '24-1-02233', roomNumber: '218', degreeProgram: 'BSME-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-24', email: 'quiambao.v@vsu.edu.ph', fullName: 'Quiambao, Vincent R.', username: 'quiambao.vr02234', role: 'user', specialRoles: [], studentId: '24-1-02234', roomNumber: '218', degreeProgram: 'BSN-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-25', email: 'resurreccion.w@vsu.edu.ph', fullName: 'Resurreccion, Warren S.', username: 'resurreccion.ws02235', role: 'user', specialRoles: [], studentId: '23-1-02235', roomNumber: '218', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-26', email: 'hidalgo.p@vsu.edu.ph', fullName: 'Hidalgo, Peter L.', username: 'hidalgo.pl02236', role: 'user', specialRoles: [], studentId: '25-1-02236', roomNumber: '219', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-27', email: 'sarmiento.x@vsu.edu.ph', fullName: 'Sarmiento, Xavier T.', username: 'sarmiento.xt02237', role: 'user', specialRoles: [], studentId: '25-1-02237', roomNumber: '219', degreeProgram: 'BSGE-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-28', email: 'teves.y@vsu.edu.ph', fullName: 'Teves, Yuri V.', username: 'teves.yv02238', role: 'user', specialRoles: [], studentId: '24-1-02238', roomNumber: '219', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-29', email: 'urbano.z@vsu.edu.ph', fullName: 'Urbano, Zach W.', username: 'urbano.zw02239', role: 'user', specialRoles: [], studentId: '23-1-02239', roomNumber: '219', degreeProgram: 'BSA Horti-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-30', email: 'isidro.r@vsu.edu.ph', fullName: 'Isidro, Ronald Q.', username: 'isidro.rq02240', role: 'user', specialRoles: [], studentId: '22-1-02240', roomNumber: '220', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-31', email: 'villanueva.a@vsu.edu.ph', fullName: 'Villanueva, Alvin Y.', username: 'villanueva.ay02241', role: 'user', specialRoles: [], studentId: '23-1-02241', roomNumber: '220', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-32', email: 'ybanez.b@vsu.edu.ph', fullName: 'Ybañez, Brian Z.', username: 'ybañez.bz02242', role: 'user', specialRoles: [], studentId: '24-1-02242', roomNumber: '220', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-2-33', email: 'zubiri.c@vsu.edu.ph', fullName: 'Zubiri, Cedric A.', username: 'zubiri.ca02243', role: 'user', specialRoles: [], studentId: '25-1-02243', roomNumber: '220', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-01', email: 'robin.h@vsu.edu.ph', fullName: 'Robin, Heaven B.', username: 'robin.hb03321', role: 'user', specialRoles: [], studentId: '24-1-03321', roomNumber: '321', degreeProgram: 'BSEd SocStud-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-02', email: 'pelias.j@vsu.edu.ph', fullName: 'Pelias, John Francis K.', username: 'pelias.jfk03322', role: 'user', specialRoles: [], studentId: '25-1-03322', roomNumber: '321', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-03', email: 'reoma.h@vsu.edu.ph', fullName: 'Reoma, Hary Kris M.', username: 'reoma.hkm03323', role: 'user', specialRoles: [], studentId: '25-1-03323', roomNumber: '321', degreeProgram: 'BSCS-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-04', email: 'abarquez.s@vsu.edu.ph', fullName: 'Abarquez, Siemon Danielle B.', username: 'abarquez.sdb03324', role: 'user', specialRoles: [], studentId: '25-1-03324', roomNumber: '321', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-05', email: 'acosta.r@vsu.edu.ph', fullName: 'Acosta, Ramil D.', username: 'acosta.rd03325', role: 'user', specialRoles: [], studentId: '24-1-03325', roomNumber: '321', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-06', email: 'malima.k@vsu.edu.ph', fullName: 'Malima, Kenjie P.', username: 'malima.kp03326', role: 'user', specialRoles: [], studentId: '23-1-03326', roomNumber: '322', degreeProgram: 'BSA AnSci-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-07', email: 'soriano.g@vsu.edu.ph', fullName: 'Soriano, Gerald C.', username: 'soriano.gc03327', role: 'user', specialRoles: [], studentId: '24-1-03327', roomNumber: '322', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-08', email: 'teodoro.m@vsu.edu.ph', fullName: 'Teodoro, Marvin B.', username: 'teodoro.mb03328', role: 'user', specialRoles: [], studentId: '23-1-03328', roomNumber: '322', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-09', email: 'umali.j@vsu.edu.ph', fullName: 'Umali, Jerome D.', username: 'umali.jd03329', role: 'user', specialRoles: [], studentId: '24-1-03329', roomNumber: '322', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-10', email: 'villegas.r@vsu.edu.ph', fullName: 'Villegas, Raymond S.', username: 'villegas.rs03330', role: 'user', specialRoles: [], studentId: '23-1-03330', roomNumber: '323', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-11', email: 'bravo.c@vsu.edu.ph', fullName: 'Bravo, Christian E.', username: 'bravo.ce03331', role: 'user', specialRoles: [], studentId: '25-1-03331', roomNumber: '323', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-12', email: 'crisostomo.d@vsu.edu.ph', fullName: 'Crisostomo, Dave F.', username: 'crisostomo.df03332', role: 'user', specialRoles: [], studentId: '24-1-03332', roomNumber: '323', degreeProgram: 'BSF-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-13', email: 'dizon.e@vsu.edu.ph', fullName: 'Dizon, Elvin G.', username: 'dizon.eg03333', role: 'user', specialRoles: [], studentId: '25-1-03333', roomNumber: '323', degreeProgram: 'BSA-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-14', email: 'yap.k@vsu.edu.ph', fullName: 'Yap, Kevin L.', username: 'yap.kl03334', role: 'user', specialRoles: [], studentId: '24-1-03334', roomNumber: '324', degreeProgram: 'BSAB-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-15', email: 'escobar.f@vsu.edu.ph', fullName: 'Escobar, Felix H.', username: 'escobar.fh03335', role: 'user', specialRoles: [], studentId: '23-1-03335', roomNumber: '324', degreeProgram: 'BSGE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-16', email: 'figueroa.g@vsu.edu.ph', fullName: 'Figueroa, Gabriel J.', username: 'figueroa.gj03336', role: 'user', specialRoles: [], studentId: '24-1-03336', roomNumber: '324', degreeProgram: 'BSN-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-17', email: 'galang.h@vsu.edu.ph', fullName: 'Galang, Hector K.', username: 'galang.hk03337', role: 'user', specialRoles: [], studentId: '24-1-03337', roomNumber: '324', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-18', email: 'zamora.a@vsu.edu.ph', fullName: 'Zamora, Anthony F.', username: 'zamora.af03338', role: 'user', specialRoles: [], studentId: '25-1-03338', roomNumber: '325', degreeProgram: 'BSME-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-19', email: 'hipolito.i@vsu.edu.ph', fullName: 'Hipolito, Ivan L.', username: 'hipolito.il03339', role: 'user', specialRoles: [], studentId: '24-1-03339', roomNumber: '325', degreeProgram: 'BSCE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-20', email: 'inocencio.j@vsu.edu.ph', fullName: 'Inocencio, Joel M.', username: 'inocencio.jm03340', role: 'user', specialRoles: [], studentId: '25-1-03340', roomNumber: '325', degreeProgram: 'BSIT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-21', email: 'javier.k@vsu.edu.ph', fullName: 'Javier, Kenneth N.', username: 'javier.kn03341', role: 'user', specialRoles: [], studentId: '23-1-03341', roomNumber: '325', degreeProgram: 'BSFT-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-22', email: 'lagman.l@vsu.edu.ph', fullName: 'Lagman, Louie P.', username: 'lagman.lp03342', role: 'user', specialRoles: [], studentId: '24-1-03342', roomNumber: '326', degreeProgram: 'BSA-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-23', email: 'magno.m@vsu.edu.ph', fullName: 'Magno, Manuel Q.', username: 'magno.mq03343', role: 'user', specialRoles: [], studentId: '23-1-03343', roomNumber: '326', degreeProgram: 'BSAB-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-24', email: 'noble.n@vsu.edu.ph', fullName: 'Noble, Nathan R.', username: 'noble.nr03344', role: 'user', specialRoles: [], studentId: '25-1-03344', roomNumber: '326', degreeProgram: 'BSEd-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-25', email: 'ocampo.o@vsu.edu.ph', fullName: 'Ocampo, Oscar S.', username: 'ocampo.os03345', role: 'user', specialRoles: [], studentId: '24-1-03345', roomNumber: '326', degreeProgram: 'BSF-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-26', email: 'pangilinan.p@vsu.edu.ph', fullName: 'Pangilinan, Patrick T.', username: 'pangilinan.pt03346', role: 'user', specialRoles: [], studentId: '23-1-03346', roomNumber: '327', degreeProgram: 'BSCS-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-27', email: 'quintos.r@vsu.edu.ph', fullName: 'Quintos, Ralph V.', username: 'quintos.rv03347', role: 'user', specialRoles: [], studentId: '24-1-03347', roomNumber: '327', degreeProgram: 'BSME-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-28', email: 'reyes.s@vsu.edu.ph', fullName: 'Reyes, Simon W.', username: 'reyes.sw03348', role: 'user', specialRoles: [], studentId: '25-1-03348', roomNumber: '327', degreeProgram: 'BSCE-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-29', email: 'salas.t@vsu.edu.ph', fullName: 'Salas, Timothy Y.', username: 'salas.ty03349', role: 'user', specialRoles: [], studentId: '24-1-03349', roomNumber: '327', degreeProgram: 'BSGE-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-30', email: 'tiu.v@vsu.edu.ph', fullName: 'Tiu, Victor Z.', username: 'tiu.vz03350', role: 'user', specialRoles: [], studentId: '23-1-03350', roomNumber: '328', degreeProgram: 'BSN-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-31', email: 'ubaldo.w@vsu.edu.ph', fullName: 'Ubaldo, Walter A.', username: 'ubaldo.wa03351', role: 'user', specialRoles: [], studentId: '24-1-03351', roomNumber: '328', degreeProgram: 'BSA AnSci-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-32', email: 'velasco.x@vsu.edu.ph', fullName: 'Velasco, Xander B.', username: 'velasco.xb03352', role: 'user', specialRoles: [], studentId: '24-1-03352', roomNumber: '328', degreeProgram: 'BSIT-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-33', email: 'yuson.y@vsu.edu.ph', fullName: 'Yuson, Yancy C.', username: 'yuson.yc03353', role: 'user', specialRoles: [], studentId: '25-1-03353', roomNumber: '328', degreeProgram: 'BSFT-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-34', email: 'agoncillo.z@vsu.edu.ph', fullName: 'Agoncillo, Zandro D.', username: 'agoncillo.zd03354', role: 'user', specialRoles: [], studentId: '25-1-03354', roomNumber: '329', degreeProgram: 'BSAB-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-35', email: 'balagtas.a@vsu.edu.ph', fullName: 'Balagtas, Arnel E.', username: 'balagtas.ae03355', role: 'user', specialRoles: [], studentId: '24-1-03355', roomNumber: '329', degreeProgram: 'BSCS-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-36', email: 'catacutan.b@vsu.edu.ph', fullName: 'Catacutan, Bernard F.', username: 'catacutan.bf03356', role: 'user', specialRoles: [], studentId: '23-1-03356', roomNumber: '329', degreeProgram: 'BSCE-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-37', email: 'dimatulac.c@vsu.edu.ph', fullName: 'Dimatulac, Carl G.', username: 'dimatulac.cg03357', role: 'user', specialRoles: [], studentId: '24-1-03357', roomNumber: '329', degreeProgram: 'BSME-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-38', email: 'estrella.d@vsu.edu.ph', fullName: 'Estrella, Dennis H.', username: 'estrella.dh03358', role: 'user', specialRoles: [], studentId: '23-1-03358', roomNumber: '330', degreeProgram: 'BSA-3', yearLevel: '3rd Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-39', email: 'francisco.e@vsu.edu.ph', fullName: 'Francisco, Edgar J.', username: 'francisco.ej03359', role: 'user', specialRoles: [], studentId: '25-1-03359', roomNumber: '330', degreeProgram: 'BSF-1', yearLevel: '1st Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-40', email: 'guevarra.f@vsu.edu.ph', fullName: 'Guevarra, Ferdinand K.', username: 'guevarra.fk03360', role: 'user', specialRoles: [], studentId: '22-1-03360', roomNumber: '330', degreeProgram: 'BSGE-4', yearLevel: '4th Year', status: 'active', addedAt: '2026-06-01' },
+  { id: 'u-3-41', email: 'honrado.g@vsu.edu.ph', fullName: 'Honrado, Glenn L.', username: 'honrado.gl03361', role: 'user', specialRoles: [], studentId: '24-1-03361', roomNumber: '330', degreeProgram: 'BSEd-2', yearLevel: '2nd Year', status: 'active', addedAt: '2026-06-01' },
 ]
 
 const INITIAL_PENDING_SIGNUPS: MockUser[] = [
@@ -574,7 +525,7 @@ const INITIAL_CLEANING_SCHEDULE: CleaningSchedule[] = [
 ]
 
 const INITIAL_CLEANING_ATTENDANCE: CleaningAttendance[] = [
-  // August 2026 Sample Records (Matches Image 1 MMH Official Sheet)
+  // August 2026 Exact Official Sheet Records (Matching uploaded sheet)
   { id: 'ca-aug-01', date: '2026-08-10', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
   { id: 'ca-aug-02', date: '2026-08-11', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
   { id: 'ca-aug-03', date: '2026-08-12', userId: 'u-g-11', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
@@ -587,19 +538,45 @@ const INITIAL_CLEANING_ATTENDANCE: CleaningAttendance[] = [
   { id: 'ca-aug-09', date: '2026-08-13', userId: 'u-g-12', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
   { id: 'ca-aug-10', date: '2026-08-14', userId: 'u-g-12', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
 
-  { id: 'ca-aug-11', date: '2026-08-10', userId: 'u-g-16', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, finePaymentId: 'py-fine-aug-16', markedBy: 'reyes.jp05678' }, // Gloria, Derick absent -> Php 10 fine
-  { id: 'ca-aug-12', date: '2026-08-11', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
-  { id: 'ca-aug-13', date: '2026-08-12', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
-
   { id: 'ca-aug-14', date: '2026-08-10', userId: 'u-g-15', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
   { id: 'ca-aug-15', date: '2026-08-11', userId: 'u-g-15', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
   { id: 'ca-aug-16', date: '2026-08-13', userId: 'u-g-15', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, finePaymentId: 'py-fine-aug-15', markedBy: 'reyes.jp05678' },
 
+  { id: 'ca-aug-11', date: '2026-08-10', userId: 'u-g-16', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, finePaymentId: 'py-fine-aug-16', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-12', date: '2026-08-11', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-13', date: '2026-08-12', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-16b', date: '2026-08-13', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-16c', date: '2026-08-14', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-16d', date: '2026-08-18', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-16e', date: '2026-08-19', userId: 'u-g-16', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
   { id: 'ca-aug-17', date: '2026-08-10', userId: 'u-3-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
   { id: 'ca-aug-18', date: '2026-08-11', userId: 'u-3-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
-
   { id: 'ca-aug-19', date: '2026-08-10', userId: 'u-3-02', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
-  { id: 'ca-aug-20', date: '2026-08-11', userId: 'u-3-02', cleaningType: 'daily', remark: 'paid', status: 'absent', fineAmount: 10, markedBy: 'reyes.jp05678' }, // Pelias paid (P)
+  { id: 'ca-aug-20', date: '2026-08-11', userId: 'u-3-02', cleaningType: 'daily', remark: 'paid', status: 'absent', fineAmount: 10, markedBy: 'reyes.jp05678' },
+
+  // Seeded realistic records across First, Second, and Third levels
+  { id: 'ca-aug-101', date: '2026-08-10', userId: 'u-2', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-102', date: '2026-08-11', userId: 'u-2', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-103', date: '2026-08-12', userId: 'u-2', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-104', date: '2026-08-10', userId: 'u-3', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-105', date: '2026-08-11', userId: 'u-3', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-106', date: '2026-08-12', userId: 'u-3', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-107', date: '2026-08-10', userId: 'u-4', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-108', date: '2026-08-11', userId: 'u-4', cleaningType: 'daily', remark: 'excuse', status: 'excused', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-109', date: '2026-08-10', userId: 'u-2-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-110', date: '2026-08-11', userId: 'u-2-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-111', date: '2026-08-12', userId: 'u-2-01', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-112', date: '2026-08-10', userId: 'u-2-06', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-113', date: '2026-08-11', userId: 'u-2-06', cleaningType: 'daily', remark: 'absent', status: 'absent', fineAmount: 10, markedBy: 'reyes.jp05678' },
+
+  { id: 'ca-aug-114', date: '2026-08-10', userId: 'u-3-06', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-115', date: '2026-08-11', userId: 'u-3-06', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
+  { id: 'ca-aug-116', date: '2026-08-12', userId: 'u-3-06', cleaningType: 'daily', remark: 'check', status: 'present', markedBy: 'reyes.jp05678' },
 
   // Standard legacy records
   { id: 'ca-1', date: '2026-06-29', userId: 'u-2', cleaningType: 'daily', remark: 'check', status: 'present', kitchenOnly: false, markedBy: 'reyes.jp05678' },
@@ -861,30 +838,29 @@ export function getDb(): MockDatabase {
   try {
     const parsed = JSON.parse(stored)
     const existingUsers: MockUser[] = parsed.users || []
-    
-    PRESET_USERS.forEach(pu => {
-      const idx = existingUsers.findIndex(u => u.id === pu.id || u.email === pu.email)
-      if (idx === -1) {
-        existingUsers.push(pu)
-      } else {
-        if (pu.specialRoles && pu.specialRoles.length > 0) {
-          pu.specialRoles.forEach(r => {
-            if (!existingUsers[idx].specialRoles) existingUsers[idx].specialRoles = []
-            if (!existingUsers[idx].specialRoles.includes(r)) {
-              existingUsers[idx].specialRoles.push(r)
-            }
-          })
-        }
-      }
-    })
+    const activeOccCount = existingUsers.filter(u => u.status === 'active' && u.role === 'user' && u.roomNumber).length
 
-    // Ensure all initial pending signup records are populated
-    INITIAL_PENDING_SIGNUPS.forEach(ps => {
-      const idx = existingUsers.findIndex(u => u.id === ps.id || u.email === ps.email)
-      if (idx === -1) {
-        existingUsers.push(ps)
-      }
-    })
+    // If cached localStorage has an outdated occupant count, re-seed with full 147 PRESET_USERS
+    let finalUsers = existingUsers
+    if (activeOccCount < 147) {
+      finalUsers = [...PRESET_USERS, ...INITIAL_PENDING_SIGNUPS]
+    } else {
+      PRESET_USERS.forEach(pu => {
+        const idx = finalUsers.findIndex(u => u.id === pu.id || u.email === pu.email)
+        if (idx === -1) {
+          finalUsers.push(pu)
+        } else {
+          finalUsers[idx] = { ...pu, ...finalUsers[idx] }
+        }
+      })
+      // Ensure all initial pending signup records are populated
+      INITIAL_PENDING_SIGNUPS.forEach(ps => {
+        const idx = finalUsers.findIndex(u => u.id === ps.id || u.email === ps.email)
+        if (idx === -1) {
+          finalUsers.push(ps)
+        }
+      })
+    }
 
     const existingAttendance: CleaningAttendance[] = parsed.cleaningAttendance || []
     INITIAL_CLEANING_ATTENDANCE.forEach(ca => {
@@ -896,7 +872,7 @@ export function getDb(): MockDatabase {
     const mergedDb: MockDatabase = {
       ...DEFAULT_DB,
       ...parsed,
-      users: existingUsers,
+      users: finalUsers,
       cleaningAttendance: existingAttendance,
       cleaningSchedule: parsed.cleaningSchedule && parsed.cleaningSchedule.length > 5 ? parsed.cleaningSchedule : DEFAULT_DB.cleaningSchedule,
       articles: parsed.articles && parsed.articles.length > 0 ? parsed.articles : DEFAULT_DB.articles,
