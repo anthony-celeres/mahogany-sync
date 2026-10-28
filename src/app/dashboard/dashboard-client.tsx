@@ -108,7 +108,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [selectedDayForClean, setSelectedDayForClean] = useState('Monday')
   const [cleaningTab, setCleaningTab] = useState<CleaningType>('daily')
   const [cleaningDate, setCleaningDate] = useState<string>(new Date().toISOString().split('T')[0])
-  const [cleaningLevelFilter, setCleaningLevelFilter] = useState<DormLevel>('ground')
+  const [cleaningLevelFilter, setCleaningLevelFilter] = useState<DormLevel>('all')
   const [cleaningRoomFilter, setCleaningRoomFilter] = useState<string>('all')
   const [cleaningMonth, setCleaningMonth] = useState<string>('2026-08')
   const [cleaningViewMode, setCleaningViewMode] = useState<'sheet' | 'roster'>('sheet')
@@ -3061,59 +3061,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   </div>
                 </div>
 
-                {/* Level Selection Bar (Ground, First, Second, Third) */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
-                      <Layers className="w-4 h-4 text-brand-leaf" /> Select MMH Level:
-                    </span>
-                    <span className="text-[11px] font-bold text-neutral-500">
-                      Showing {filteredOccupants.length} residents
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                    {MMH_LEVELS.map((lvl) => {
-                      const isSelected = cleaningLevelFilter === lvl.id
-                      const count = activeOccupants.filter(u => lvl.id === 'all' || getRoomLevel(u.roomNumber) === lvl.id).length
-                      return (
-                        <button
-                          key={lvl.id}
-                          onClick={() => {
-                            setCleaningLevelFilter(lvl.id)
-                            setCleaningRoomFilter('all')
-                          }}
-                          className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between group ${
-                            isSelected
-                              ? 'bg-[#255f3d] border-[#255f3d] text-white shadow-sm ring-2 ring-[#255f3d]/30'
-                              : 'bg-white dark:bg-neutral-900/60 border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-[#255f3d]/40 hover:bg-neutral-50 dark:hover:bg-neutral-850/50'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="font-bold text-xs">{lvl.name}</span>
-                            {isSelected && <span className="w-2 h-2 rounded-full bg-[#efbe2b] shrink-0" />}
-                          </div>
-                          <div className={`text-[10px] mt-1 leading-snug line-clamp-2 ${isSelected ? 'text-white/80' : 'text-neutral-500'}`}>
-                            {lvl.subtitle}
-                          </div>
-                          <div className="mt-2.5 pt-2 border-t border-black/10 dark:border-white/10 flex items-center justify-between">
-                            <span className={`text-[10px] font-mono font-bold ${
-                              isSelected ? 'text-white' : 'text-neutral-600 dark:text-neutral-400'
-                            }`}>
-                              {count} residents
-                            </span>
-                            <span className={`text-[9px] uppercase font-bold px-1.5 py-0.2 rounded ${
-                              isSelected ? 'bg-black/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
-                            }`}>
-                              {lvl.id === 'all' ? 'All' : lvl.id}
-                            </span>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
                 {/* View Mode & Filter Controls */}
                 <div className="p-4 bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-850 rounded-2xl space-y-4 shadow-xs">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -3145,7 +3092,48 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
                     {/* Filters & Month Picker */}
                     <div className="flex flex-wrap items-center gap-2">
-                      {/* Month Picker */}
+                      {/* Level Dropdown Filter */}
+                      <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+                        <Layers className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                        <select
+                          value={cleaningLevelFilter}
+                          onChange={(e) => {
+                            setCleaningLevelFilter(e.target.value as DormLevel)
+                            setCleaningRoomFilter('all')
+                          }}
+                          className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
+                        >
+                          {MMH_LEVELS.map((lvl) => {
+                            const count = activeOccupants.filter(u => lvl.id === 'all' || getRoomLevel(u.roomNumber) === lvl.id).length
+                            return (
+                              <option key={lvl.id} value={lvl.id}>
+                                {lvl.name} ({count})
+                              </option>
+                            )
+                          })}
+                        </select>
+                      </div>
+
+                      {/* Room Filter within Level */}
+                      <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+                        <Filter className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                        <select
+                          value={cleaningRoomFilter}
+                          onChange={(e) => setCleaningRoomFilter(e.target.value)}
+                          className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
+                        >
+                          <option value="all">
+                            {cleaningLevelFilter === 'all' ? 'All Rooms' : `All Rooms in ${MMH_LEVELS.find(l => l.id === cleaningLevelFilter)?.name || 'Level'}`} ({levelRooms.length})
+                          </option>
+                          {levelRooms.map((rm) => (
+                            <option key={rm} value={rm}>
+                              Room {rm}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Month Picker for monthly sheet view */}
                       {cleaningViewMode === 'sheet' && (
                         <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
                           <Calendar className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
@@ -3175,23 +3163,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           />
                         </div>
                       )}
-
-                      {/* Room Filter within Level */}
-                      <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
-                        <Filter className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
-                        <select
-                          value={cleaningRoomFilter}
-                          onChange={(e) => setCleaningRoomFilter(e.target.value)}
-                          className="bg-transparent text-xs font-bold text-neutral-900 dark:text-white outline-none cursor-pointer"
-                        >
-                          <option value="all">All Rooms in Level ({levelRooms.length})</option>
-                          {levelRooms.map((rm) => (
-                            <option key={rm} value={rm}>
-                              Room {rm}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
 
                       {/* Search Bar */}
                       <div className="relative min-w-[180px]">
