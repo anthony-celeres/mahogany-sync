@@ -3026,21 +3026,15 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
             return (
               <div className="space-y-6 animate-fade-in">
-                {/* Header & Two-Tier Switcher */}
+                {/* Header & Cleaning Switcher */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200 dark:border-neutral-850">
                   <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-brand-leaf uppercase tracking-wider mb-1">
-                      <Sparkles className="w-4 h-4" /> MMH Semestral Evaluation Sheets
-                    </div>
                     <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-                      Cleaning Attendance &amp; Evaluation Desk
+                      Cleaning Attendance
                     </h2>
-                    <p className="text-xs text-neutral-500 mt-0.5">
-                      Two-tier cleaning attendance tracking (Daily ₱10 fine &amp; General ₱50 fine) across the 4 MMH Levels with official evaluation sheets.
-                    </p>
                   </div>
 
-                  {/* Two-Tier Cleaning Tabs */}
+                  {/* Cleaning Tabs */}
                   <div className="flex items-center p-1 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-850 rounded-xl shrink-0">
                     <button
                       onClick={() => setCleaningTab('daily')}
@@ -3052,7 +3046,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Daily Cleaning</span>
-                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-black/20 text-white font-mono">₱10 fine</span>
                     </button>
                     <button
                       onClick={() => setCleaningTab('general')}
@@ -3064,7 +3057,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                     >
                       <Home className="w-3.5 h-3.5" />
                       <span>General Cleaning</span>
-                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-black/20 text-white font-mono">₱50 fine</span>
                     </button>
                   </div>
                 </div>
